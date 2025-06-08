@@ -164,8 +164,8 @@ export class ControlPanel {
         <div class="control-header">
           <span class="control-label">${control.label}</span>
           ${hasLFO ? `<button class="lfo-toggle ${lfoActive ? 'active' : ''}" data-control="${control.name}" title="Toggle LFO">
-            <span class="lfo-icon-off">○</span>
-            <span class="lfo-icon-on">●</span>
+            <span class="lfo-icon-off">⏻</span>
+            <span class="lfo-icon-on">⏻</span>
           </button>` : ''}
         </div>
         <div class="control-name-group">
@@ -584,16 +584,16 @@ export class ControlPanel {
       .lfo-toggle {
         background: rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 12px;
-        padding: 4px 8px;
+        border-radius: 6px;
+        padding: 4px;
         font-size: 12px;
         font-weight: 600;
         color: #666;
         cursor: pointer;
         transition: all 0.2s ease;
         position: relative;
-        min-width: 24px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         display: flex;
         align-items: center;
         justify-content: center;

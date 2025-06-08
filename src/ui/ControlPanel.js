@@ -163,7 +163,7 @@ export class ControlPanel {
       <div class="control-info">
         <div class="control-header">
           <span class="control-label">${control.label}</span>
-          ${hasLFO ? `<button class="lfo-toggle ${lfoActive ? 'active' : ''}" data-control="${control.name}" title="Toggle LFO (Right-click to configure)">
+          ${hasLFO ? `<button class="lfo-toggle ${lfoActive ? 'active' : ''}" data-control="${control.name}">
             <span class="lfo-icon-off">⏻</span>
             <span class="lfo-icon-on">⏻</span>
           </button>` : ''}
@@ -215,6 +215,15 @@ export class ControlPanel {
         e.preventDefault();
         e.stopPropagation();
         this.showLFOConfigDropdown(control.name, lfoButton);
+      });
+
+      // Add tooltip functionality
+      lfoButton.addEventListener('mouseenter', (e) => {
+        this.showLFOTooltip(e.target, 'Toggle LFO (Right-click to configure)');
+      });
+
+      lfoButton.addEventListener('mouseleave', () => {
+        this.hideLFOTooltip();
       });
     }
     
@@ -606,6 +615,7 @@ export class ControlPanel {
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 10000;
       }
 
       body.dark-theme .lfo-toggle {
@@ -825,14 +835,88 @@ export class ControlPanel {
       body.dark-theme .lfo-offset-value {
         color: #999;
       }
+
+      /* Custom tooltip styles */
+      .lfo-tooltip-global {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 99999;
+        transform: translateX(-50%);
+      }
+
+      body.dark-theme .lfo-tooltip-global {
+        background: rgba(255, 255, 255, 0.9);
+        color: #1d1d1f;
+      }
+
+      .lfo-tooltip-global::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.9);
+      }
+
+      body.dark-theme .lfo-tooltip-global::after {
+        border-top-color: rgba(255, 255, 255, 0.9);
+      }
+
+      .lfo-tooltip-global.show {
+        opacity: 1;
+      }
     `;
     document.head.appendChild(style);
+  }
+
+  showLFOTooltip(button, text) {
+    // Create tooltip if it doesn't exist
+    if (!this.globalTooltip) {
+      this.globalTooltip = document.createElement('div');
+      this.globalTooltip.className = 'lfo-tooltip-global';
+      document.body.appendChild(this.globalTooltip);
+    }
+
+    // Set text and position
+    this.globalTooltip.textContent = text;
+    
+    // Get button position
+    const buttonRect = button.getBoundingClientRect();
+    
+    // Position tooltip above the button
+    this.globalTooltip.style.left = `${buttonRect.left + buttonRect.width / 2}px`;
+    this.globalTooltip.style.top = `${buttonRect.top - 35}px`;
+    
+    // Show tooltip
+    this.globalTooltip.classList.add('show');
+  }
+
+  hideLFOTooltip() {
+    if (this.globalTooltip) {
+      this.globalTooltip.classList.remove('show');
+    }
   }
 
   destroy() {
     if (this.container) {
       this.container.remove();
       this.container = null;
+    }
+    
+    // Clean up global tooltip
+    if (this.globalTooltip) {
+      this.globalTooltip.remove();
+      this.globalTooltip = null;
     }
   }
 

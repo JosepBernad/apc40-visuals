@@ -635,23 +635,31 @@ export class ControlPanel {
       }
 
       .lfo-toggle.active {
-        background: #ff9500;
-        border-color: #ff9500;
+        background: linear-gradient(135deg, #ff9500, #ffb347);
+        border: 1.5px solid #ff9500;
         color: white;
-        box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+        box-shadow: 0 0 12px rgba(255, 149, 0, 0.4), 0 2px 8px rgba(255, 149, 0, 0.2);
+        transform: scale(1.05);
       }
 
       .lfo-toggle.active:hover {
-        background: #e6850e;
+        background: linear-gradient(135deg, #e6850e, #ff9500);
         border-color: #e6850e;
+        box-shadow: 0 0 16px rgba(255, 149, 0, 0.5), 0 2px 12px rgba(255, 149, 0, 0.3);
       }
 
       .lfo-icon-off,
       .lfo-icon-on {
         position: absolute;
-        transition: opacity 0.2s ease;
+        transition: all 0.2s ease;
         font-size: 12px;
         line-height: 1;
+      }
+
+      .lfo-toggle.active .lfo-icon-on {
+        font-size: 13px;
+        text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+        filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.2));
       }
 
       .lfo-toggle .lfo-icon-off {

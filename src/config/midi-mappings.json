@@ -1,0 +1,93 @@
+{
+  "device": {
+    "name": "APC40",
+    "vendorId": "09E8",
+    "productId": "0029"
+  },
+  "controls": {
+    "sceneButtons": {
+      "description": "Clip launch buttons for scene selection",
+      "type": "note",
+      "channel": 0,
+      "notes": {
+        "row1": [53, 54, 55, 56, 57, 58, 59, 60],
+        "row2": [45, 46, 47, 48, 49, 50, 51, 52],
+        "row3": [37, 38, 39, 40, 41, 42, 43, 44],
+        "row4": [29, 30, 31, 32, 33, 34, 35, 36],
+        "row5": [21, 22, 23, 24, 25, 26, 27, 28]
+      }
+    },
+    "knobs": {
+      "description": "Device control knobs",
+      "type": "cc",
+      "channel": 0,
+      "controls": {
+        "deviceKnob1": 16,
+        "deviceKnob2": 17,
+        "deviceKnob3": 18,
+        "deviceKnob4": 19,
+        "deviceKnob5": 20,
+        "deviceKnob6": 21,
+        "deviceKnob7": 22,
+        "deviceKnob8": 23
+      }
+    },
+    "faders": {
+      "description": "Track faders",
+      "type": "cc",
+      "channel": 0,
+      "controls": {
+        "track1": 48,
+        "track2": 49,
+        "track3": 50,
+        "track4": 51,
+        "track5": 52,
+        "track6": 53,
+        "track7": 54,
+        "track8": 55,
+        "master": 56
+      }
+    },
+    "crossfader": {
+      "description": "Crossfader",
+      "type": "cc",
+      "channel": 0,
+      "control": 15
+    }
+  },
+  "mappings": {
+    "scenes": {
+      "geometric": {
+        "button": "row1[0]",
+        "parameters": {
+          "speed": "deviceKnob1",
+          "complexity": "deviceKnob2",
+          "scale": "deviceKnob3",
+          "hue": "deviceKnob4"
+        }
+      },
+      "particles": {
+        "button": "row1[1]",
+        "parameters": {
+          "count": "deviceKnob1",
+          "speed": "deviceKnob2",
+          "spread": "deviceKnob3",
+          "hue": "deviceKnob4"
+        }
+      },
+      "waves": {
+        "button": "row1[2]",
+        "parameters": {
+          "frequency": "deviceKnob1",
+          "amplitude": "deviceKnob2",
+          "speed": "deviceKnob3",
+          "hue": "deviceKnob4"
+        }
+      }
+    },
+    "global": {
+      "intensity": "master",
+      "transition": "crossfader"
+    }
+  }
+} 

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APC40 Visual Controller</title>
+  </head>
+  <body>
+    <nav id="scene-selector">
+      <div class="scene-buttons">
+        <button class="scene-btn active" data-scene="0">Geometric</button>
+        <button class="scene-btn" data-scene="1">Particles</button>
+        <button class="scene-btn" data-scene="2">Waves</button>
+      </div>
+      <div class="status">
+        <span id="midi-status">MIDI: Disconnected</span>
+        <span id="audio-status">Audio: Inactive</span>
+      </div>
+    </nav>
+    <div id="canvas-container"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

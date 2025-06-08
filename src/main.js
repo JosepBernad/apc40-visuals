@@ -338,6 +338,12 @@ class App {
       this.toggleFullscreenMode()
     })
 
+    // Listen for control panel button clicks
+    window.addEventListener('controlPanelUpdate', (e) => {
+      const { controlName, value } = e.detail
+      this.updateSceneParameter(controlName, value)
+    })
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       switch(e.key) {

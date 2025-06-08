@@ -133,19 +133,33 @@ export class ControlPanel {
     item.className = 'control-item';
     
     const value = Math.round(control.value * 100);
-    const displayValue = type === 'button' ? (control.value > 0.5 ? 'ON' : 'OFF') : '';
+    const isOn = control.value > 0.5;
     const midiNumber = this.getMidiNumber(control.name, type);
+    
+    // Add button-specific classes
+    if (type === 'button') {
+      item.className += ' control-item-button';
+      item.className += isOn ? ' button-on' : ' button-off';
+      
+      // Add click handler for buttons
+      item.addEventListener('click', () => {
+        const newValue = control.value > 0.5 ? 0 : 1;
+        // Dispatch event to update the parameter
+        window.dispatchEvent(new CustomEvent('controlPanelUpdate', {
+          detail: { controlName: control.name, value: newValue }
+        }));
+      });
+    }
     
     item.innerHTML = `
       <div class="control-info">
+        <span class="control-label">${control.label}</span>
         <div class="control-name-group">
           <span class="control-name">${control.name}</span>
           ${midiNumber ? `<span class="midi-chip">${midiNumber}</span>` : ''}
         </div>
-        <span class="control-label">${control.label}</span>
       </div>
       <div class="control-value-wrapper">
-        ${type === 'button' ? `<span class="button-state">${displayValue}</span>` : ''}
         <div class="control-value">
           <div class="value-bar" style="width: ${value}%"></div>
         </div>
@@ -187,7 +201,7 @@ export class ControlPanel {
         top: 52px;
         right: 0;
         bottom: 0;
-        width: 380px;
+        width: 420px;
         background: transparent;
         color: #1d1d1f;
         font-size: 13px;
@@ -276,14 +290,22 @@ export class ControlPanel {
         letter-spacing: 0.06em;
       }
 
+      .knobs-list,
+      .buttons-list,
+      .faders-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
       .control-item {
-        margin-bottom: 12px;
+        margin-bottom: 0;
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 0.5px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
-        padding: 12px 16px;
+        padding: 14px 16px;
         transition: all 0.2s ease;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       }
@@ -305,9 +327,9 @@ export class ControlPanel {
 
       .control-info {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 4px;
         margin-bottom: 8px;
-        align-items: center;
       }
 
       .control-name-group {
@@ -340,7 +362,9 @@ export class ControlPanel {
 
       .control-label {
         color: #1d1d1f;
-        font-weight: 500;
+        font-weight: 600;
+        font-size: 13px;
+        line-height: 1.2;
       }
 
       body.dark-theme .control-label {
@@ -380,6 +404,55 @@ export class ControlPanel {
         font-size: 11px;
         font-weight: 600;
         color: #86868b;
+      }
+
+      /* Button-specific styles */
+      .control-item-button {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .control-item-button.button-on {
+        background: rgba(52, 199, 89, 0.9);
+        border-color: rgba(52, 199, 89, 0.3);
+      }
+
+      body.dark-theme .control-item-button.button-on {
+        background: rgba(52, 199, 89, 0.8);
+        border-color: rgba(52, 199, 89, 0.5);
+      }
+
+      .control-item-button.button-on:hover {
+        background: rgba(52, 199, 89, 1);
+        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+      }
+
+      body.dark-theme .control-item-button.button-on:hover {
+        background: rgba(52, 199, 89, 0.9);
+        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+      }
+
+      .control-item-button.button-on .control-name,
+      .control-item-button.button-on .control-label {
+        color: white;
+      }
+
+      .control-item-button.button-on .midi-chip {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .control-item-button.button-on .control-value {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .control-item-button.button-on .value-bar {
+        background: white;
+      }
+
+      /* Hide value bar for buttons */
+      .control-item-button .control-value {
+        display: none;
       }
 
       .control-panel-content::-webkit-scrollbar {

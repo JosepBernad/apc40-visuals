@@ -413,7 +413,11 @@ body.dark-theme .theme-option:hover {
 
 .theme-option.active {
   background: transparent;
-  color: #34c759;
+  color: #1d1d1f;
+}
+
+body.dark-theme .theme-option.active {
+  color: #f5f5f7;
 }
 
 .theme-option.active::before {
@@ -429,11 +433,12 @@ body.dark-theme .theme-option:hover {
 
 .theme-option.active:hover {
   background: rgba(52, 199, 89, 0.1);
-  color: #34c759;
+  color: #1d1d1f;
 }
 
 body.dark-theme .theme-option.active:hover {
   background: rgba(52, 199, 89, 0.2);
+  color: #f5f5f7;
 }
 
 .theme-option.active svg {

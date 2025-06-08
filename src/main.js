@@ -64,7 +64,11 @@ class App {
       const status = document.getElementById('midi-status')
       if (status) {
         status.textContent = data.connected ? 'MIDI: Connected' : 'MIDI: Disconnected'
-        status.style.color = data.connected ? '#4CAF50' : '#f44336'
+        if (data.connected) {
+          status.style.color = '#34c759'
+        } else {
+          status.style.color = '#ff3b30'
+        }
       }
     })
 
@@ -174,7 +178,11 @@ class App {
     const status = document.getElementById('audio-status')
     if (status) {
       status.textContent = active ? 'Audio: Active' : 'Audio: Inactive'
-      status.style.color = active ? '#4CAF50' : '#666'
+      if (active) {
+        status.style.color = '#34c759'
+      } else {
+        status.style.color = '#86868b'
+      }
     }
   }
 

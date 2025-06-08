@@ -12,6 +12,11 @@
         <button class="scene-btn active" data-scene="0">Geometric</button>
         <button class="scene-btn" data-scene="1">Particles</button>
         <button class="scene-btn" data-scene="2">Waves</button>
+        <button class="scene-add-btn" id="scene-add-btn" title="Scene Creation Guide">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
     </nav>
     
@@ -68,13 +73,206 @@
         <span class="shortcut-key"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span> Switch scenes
       </div>
       <div class="shortcut-item">
-        <span class="shortcut-key"><kbd>←</kbd><kbd>→</kbd></span> Previous/Next scene
+        <span class="shortcut-key"><kbd>◀</kbd><kbd>▶</kbd></span> Previous/Next scene
       </div>
       <div class="shortcut-item">
         <span class="shortcut-key"><kbd>A</kbd></span> Toggle audio input
       </div>
       <div class="shortcut-item">
         <span class="shortcut-key"><kbd>H</kbd></span> Toggle control panel
+      </div>
+    </div>
+    
+    <!-- Scene Creation Guide Overlay -->
+    <div class="scene-guide-overlay" id="scene-guide-overlay" style="display: none;">
+      <div class="scene-guide-content">
+        <div class="scene-guide-header">
+          <h2>Scene Creation Guide</h2>
+          <div class="scene-guide-actions">
+            <button class="scene-guide-copy" id="scene-guide-copy" title="Copy as Markdown">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="4" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                <path d="M2 2H9C9.6 2 10 2.4 10 3V4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                <path d="M2 2C1.4 2 1 2.4 1 3V11C1 11.6 1.4 12 2 12H3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              </svg>
+              Copy MD
+            </button>
+            <button class="scene-guide-close" id="scene-guide-close">×</button>
+          </div>
+        </div>
+        <div class="scene-guide-body">
+          <div class="guide-section">
+            <h3>🏗️ Architecture Overview</h3>
+            <p>All scenes extend the base <code>Scene</code> class and must implement specific methods for integration with the APC40 controller system.</p>
+          </div>
+          
+          <div class="guide-section">
+            <h3>📁 File Structure</h3>
+            <div class="code-block">
+              <pre>src/scenes/YourScene.js
+├── Import Scene base class
+├── Define constructor with parameters
+├── Implement setup() method
+├── Implement update(deltaTime) method
+├── Implement onParameterChange(name, value)
+├── Implement getControls() method
+└── Implement destroy() method</pre>
+            </div>
+          </div>
+          
+          <div class="guide-section">
+            <h3>🎛️ Parameter System</h3>
+            <p>All parameters are normalized values (0.0 to 1.0):</p>
+            <ul>
+              <li><strong>intensity</strong> (0-1) - Master intensity/opacity</li>
+              <li><strong>hue</strong> (0-1) - Color hue (0=red, 0.33=green, 0.66=blue)</li>
+              <li><strong>speed</strong> (0-1) - Animation speed multiplier</li>
+              <li><strong>complexity</strong> (0-1) - Scene complexity/detail level</li>
+              <li><strong>scale</strong> (0-1) - Object size scaling</li>
+              <li><strong>wireframe</strong> (0-1) - Toggle wireframe mode (>0.5 = on)</li>
+            </ul>
+          </div>
+          
+          <div class="guide-section">
+            <h3>🎮 Control Mapping</h3>
+            <div class="code-block">
+              <pre>getControls() {
+  return {
+    knobs: [
+      { name: 'deviceKnob1', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+      // ... up to 8 knobs (deviceKnob1-8)
+    ],
+    buttons: [
+      { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' },
+      // ... up to 8 buttons (row2[0-7])
+    ],
+    faders: [
+      { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+    ]
+  };
+}</pre>
+            </div>
+          </div>
+          
+          <div class="guide-section">
+            <h3>🔊 Audio Reactivity</h3>
+            <p>Audio data available in <code>this.audioData</code>:</p>
+            <ul>
+              <li><strong>bass</strong> (0-1) - Low frequency energy</li>
+              <li><strong>mid</strong> (0-1) - Mid frequency energy</li>
+              <li><strong>high</strong> (0-1) - High frequency energy</li>
+              <li><strong>average</strong> (0-1) - Overall frequency average</li>
+              <li><strong>spectrum</strong> - Full frequency spectrum array</li>
+            </ul>
+          </div>
+          
+          <div class="guide-section">
+            <h3>📝 Scene Template</h3>
+            <div class="code-block">
+              <pre>import * as THREE from 'three';
+import { Scene } from './Scene.js';
+
+export class YourScene extends Scene {
+  constructor() {
+    super('YourSceneName');
+    this.yourObjects = [];
+    this.time = 0;
+    
+    this.parameters = {
+      ...this.parameters,
+      yourParam1: 0.5,
+      yourParam2: 0.5,
+    };
+  }
+
+  setup() {
+    this.cleanup();
+    this.time = 0;
+    this.createYourObjects();
+    this.setupLighting();
+    this.camera.position.set(x, y, z);
+  }
+
+  update(deltaTime) {
+    this.time += deltaTime;
+    // Update objects based on parameters
+    // Apply audio reactivity
+  }
+
+  onParameterChange(name, value) {
+    if (name === 'hue') {
+      // Update colors
+    }
+  }
+
+  getControls() {
+    return {
+      knobs: [/* mappings */],
+      buttons: [/* mappings */],
+      faders: [
+        { name: 'master', parameter: 'intensity', 
+          value: this.parameters.intensity, label: 'Master Intensity' }
+      ]
+    };
+  }
+
+  cleanup() {
+    // Dispose geometries and materials
+  }
+
+  destroy() {
+    this.cleanup();
+    super.destroy();
+  }
+}</pre>
+            </div>
+          </div>
+          
+          <div class="guide-section">
+            <h3>🔧 Registration</h3>
+            <p>Add your scene to <code>SceneManager.js</code>:</p>
+            <div class="code-block">
+              <pre>import { YourScene } from './YourScene.js';
+
+// In initScenes():
+this.scenes = [
+  new GeometricScene(),
+  new ParticleScene(),
+  new WaveScene(),
+  new YourScene() // Add here
+];</pre>
+            </div>
+          </div>
+          
+          <div class="guide-section">
+            <h3>💡 Scene Ideas</h3>
+            <div class="scene-ideas">
+              <span class="idea-tag">Tunnel/Corridor</span>
+              <span class="idea-tag">Fractal Patterns</span>
+              <span class="idea-tag">Liquid/Fluid</span>
+              <span class="idea-tag">Crystal Structures</span>
+              <span class="idea-tag">Space/Cosmic</span>
+              <span class="idea-tag">Abstract Art</span>
+              <span class="idea-tag">Mechanical</span>
+              <span class="idea-tag">Nature/Organic</span>
+              <span class="idea-tag">Digital/Glitch</span>
+              <span class="idea-tag">Minimal Geometry</span>
+            </div>
+          </div>
+          
+          <div class="guide-section">
+            <h3>⚡ Best Practices</h3>
+            <ul>
+              <li>Always dispose geometries and materials in cleanup</li>
+              <li>Use full 0-1 parameter range effectively</li>
+              <li>Make parameters have visible, meaningful effects</li>
+              <li>Test with LFO automation for stable behavior</li>
+              <li>Consider both light and dark theme backgrounds</li>
+              <li>Target 60fps performance</li>
+              <li>Use deterministic animations for LFO compatibility</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
     

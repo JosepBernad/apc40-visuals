@@ -348,6 +348,77 @@ class App {
       })
     })
 
+    // Scene creation guide
+    const sceneAddBtn = document.getElementById('scene-add-btn')
+    const sceneGuideOverlay = document.getElementById('scene-guide-overlay')
+    const sceneGuideClose = document.getElementById('scene-guide-close')
+    const sceneGuideCopy = document.getElementById('scene-guide-copy')
+
+    if (sceneAddBtn && sceneGuideOverlay && sceneGuideClose) {
+      // Show guide overlay
+      sceneAddBtn.addEventListener('click', () => {
+        sceneGuideOverlay.style.display = 'flex'
+        // Force reflow
+        sceneGuideOverlay.offsetHeight
+        sceneGuideOverlay.classList.add('show')
+      })
+
+      // Close guide overlay
+      const closeGuide = () => {
+        sceneGuideOverlay.classList.remove('show')
+        setTimeout(() => {
+          sceneGuideOverlay.style.display = 'none'
+        }, 300)
+      }
+
+      sceneGuideClose.addEventListener('click', closeGuide)
+      
+      // Copy guide as Markdown
+      if (sceneGuideCopy) {
+        sceneGuideCopy.addEventListener('click', async () => {
+          const markdownContent = this.generateSceneGuideMarkdown()
+          
+          try {
+            await navigator.clipboard.writeText(markdownContent)
+            
+            // Visual feedback
+            const originalText = sceneGuideCopy.innerHTML
+            sceneGuideCopy.classList.add('copied')
+            sceneGuideCopy.innerHTML = `
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Copied!
+            `
+            
+            setTimeout(() => {
+              sceneGuideCopy.classList.remove('copied')
+              sceneGuideCopy.innerHTML = originalText
+            }, 2000)
+            
+          } catch (err) {
+            console.error('Failed to copy to clipboard:', err)
+            // Fallback for older browsers
+            this.fallbackCopyToClipboard(markdownContent)
+          }
+        })
+      }
+      
+      // Close when clicking outside content
+      sceneGuideOverlay.addEventListener('click', (e) => {
+        if (e.target === sceneGuideOverlay) {
+          closeGuide()
+        }
+      })
+
+      // Close with Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sceneGuideOverlay.classList.contains('show')) {
+          closeGuide()
+        }
+      })
+    }
+
     // Listen for fullscreen toggle from control panel
     window.addEventListener('toggleFullscreen', () => {
       this.toggleFullscreenMode()
@@ -533,6 +604,312 @@ class App {
         currentScene.setIntensity(defaults.intensity)
       }, 100)
     }
+  }
+
+  generateSceneGuideMarkdown() {
+    return `# APC40 Visual Controller - Scene Creation Guide
+
+## Project Overview
+This is a professional APC40 MIDI visual controller built with Three.js, featuring real-time parameter control, LFO automation, and audio reactivity. The system supports multiple visual scenes that can be switched between and controlled via MIDI or UI controls.
+
+## Architecture
+
+### Base Scene Class (\`src/scenes/Scene.js\`)
+All scenes must extend the base \`Scene\` class which provides:
+
+**Core Properties:**
+- \`this.name\` - Scene name (string)
+- \`this.scene\` - THREE.Scene instance
+- \`this.camera\` - THREE.PerspectiveCamera
+- \`this.renderer\` - THREE.WebGLRenderer
+- \`this.parameters\` - Object containing all controllable parameters
+- \`this.audioData\` - Real-time audio analysis data
+- \`this.time\` - Animation time counter
+
+**Required Methods to Override:**
+- \`setup()\` - Initialize scene objects, lighting, materials
+- \`update(deltaTime)\` - Animation loop, update objects based on parameters
+- \`onParameterChange(name, value)\` - Handle real-time parameter changes
+- \`getControls()\` - Return control mapping for UI/MIDI
+- \`destroy()\` - Clean up resources
+
+**Built-in Features:**
+- Theme-responsive background (white for light mode, black for dark mode)
+- Automatic resize handling
+- Resource cleanup
+- Intensity control (master opacity)
+- Utility method \`hueToRgb(h)\` for color conversion
+
+### Parameter System
+Parameters are normalized values (0.0 to 1.0) that control scene behavior:
+
+**Standard Parameters (all scenes should have):**
+- \`intensity\` (0-1) - Master intensity/opacity
+- \`hue\` (0-1) - Color hue (0=red, 0.33=green, 0.66=blue)
+
+**Common Parameters:**
+- \`speed\` (0-1) - Animation speed multiplier
+- \`complexity\` (0-1) - Scene complexity/detail level
+- \`scale\` (0-1) - Object size scaling
+- \`wireframe\` (0-1) - Toggle wireframe mode (>0.5 = on)
+
+### Control Mapping
+The \`getControls()\` method must return an object with three arrays:
+
+\`\`\`javascript
+getControls() {
+  return {
+    knobs: [
+      { name: 'deviceKnob1', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+      { name: 'deviceKnob2', parameter: 'complexity', value: this.parameters.complexity, label: 'Complexity' },
+      // ... up to 8 knobs (deviceKnob1-8)
+    ],
+    buttons: [
+      { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' },
+      // ... up to 8 buttons (row2[0-7])
+    ],
+    faders: [
+      { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+      // ... additional faders if needed
+    ]
+  };
+}
+\`\`\`
+
+### Audio Reactivity
+Audio data is available in \`this.audioData\` with properties:
+- \`bass\` (0-1) - Low frequency energy
+- \`mid\` (0-1) - Mid frequency energy  
+- \`high\` (0-1) - High frequency energy
+- \`average\` (0-1) - Overall frequency average
+- \`spectrum\` - Full frequency spectrum array
+
+### Scene Registration
+To add a new scene:
+
+1. Create the scene file in \`src/scenes/\`
+2. Import and add to \`SceneManager.js\`:
+\`\`\`javascript
+import { YourNewScene } from './YourNewScene.js';
+
+// In initScenes():
+this.scenes = [
+  new GeometricScene(),
+  new ParticleScene(), 
+  new WaveScene(),
+  new YourNewScene() // Add here
+];
+\`\`\`
+
+3. Add scene button to \`index.html\` if more than 3 scenes total
+
+## Existing Scene Examples
+
+### GeometricScene
+- **Focus**: 3D geometric shapes with metallic materials
+- **Features**: Multiple primitive shapes, glow effects, grid floor, dynamic lighting
+- **Parameters**: speed, complexity, scale, rotation, glow, wireframe, metalness, roughness
+- **Techniques**: PBR materials, shadow mapping, emissive materials, camera orbiting
+
+### ParticleScene  
+- **Focus**: GPU particle system with shader-based rendering
+- **Features**: 5000+ particles, custom shaders, deterministic color variations
+- **Parameters**: count, speed, spread, size, turbulence, trail
+- **Techniques**: BufferGeometry, ShaderMaterial, additive blending, vertex colors
+
+### WaveScene
+- **Focus**: Animated wave surfaces with distortion effects
+- **Features**: Multiple wave layers, shader-based displacement, wireframe toggle
+- **Parameters**: frequency, amplitude, speed, waveCount, distortion, wireframe  
+- **Techniques**: PlaneGeometry with vertex displacement, custom uniforms, layer management
+
+## Technical Requirements
+
+### Performance
+- Target 60fps on modern hardware
+- Efficient resource management (dispose geometries/materials)
+- Use BufferGeometry for large datasets
+- Implement proper cleanup in \`destroy()\`
+
+### Visual Quality
+- Support both light and dark themes
+- Smooth parameter transitions
+- Audio-reactive elements
+- Professional aesthetic suitable for live performance
+
+### Parameter Handling
+- All parameters normalized 0-1
+- Immediate response to changes (no interpolation)
+- Deterministic behavior for LFO automation
+- Meaningful parameter ranges and effects
+
+## Scene Creation Template
+
+\`\`\`javascript
+import * as THREE from 'three';
+import { Scene } from './Scene.js';
+
+export class YourScene extends Scene {
+  constructor() {
+    super('YourSceneName');
+    
+    // Scene-specific properties
+    this.yourObjects = [];
+    this.time = 0;
+    
+    // Define parameters
+    this.parameters = {
+      ...this.parameters, // Include base parameters
+      yourParam1: 0.5,
+      yourParam2: 0.5,
+      // ... more parameters
+    };
+  }
+
+  setup() {
+    // Clean up existing objects
+    this.cleanup();
+    
+    // Reset time
+    this.time = 0;
+    
+    // Create scene objects
+    this.createYourObjects();
+    
+    // Setup lighting
+    this.setupLighting();
+    
+    // Configure camera
+    this.camera.position.set(x, y, z);
+  }
+
+  update(deltaTime) {
+    this.time += deltaTime;
+    
+    // Update objects based on parameters
+    // Apply audio reactivity
+    // Animate camera if needed
+  }
+
+  onParameterChange(name, value) {
+    // Handle specific parameter changes
+    if (name === 'hue') {
+      // Update colors
+    }
+    // Handle other parameters
+  }
+
+  getControls() {
+    return {
+      knobs: [/* your knob mappings */],
+      buttons: [/* your button mappings */],
+      faders: [
+        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+      ]
+    };
+  }
+
+  cleanup() {
+    // Dispose of existing objects
+  }
+
+  destroy() {
+    this.cleanup();
+    super.destroy();
+  }
+}
+\`\`\`
+
+## Best Practices
+
+**Resource Management:**
+- Always dispose geometries and materials in cleanup
+- Remove objects from scene before disposing
+- Use object pools for frequently created/destroyed objects
+
+**Parameter Design:**
+- Make parameters have visible, meaningful effects
+- Use full 0-1 range effectively
+- Consider parameter interactions and combinations
+
+**Audio Reactivity:**
+- Use bass for impact effects (scale, intensity)
+- Use mid/high for detail animations
+- Smooth audio data to avoid jitter
+
+**Visual Design:**
+- Consider both light and dark theme backgrounds
+- Use appropriate materials for the aesthetic
+- Implement smooth animations and transitions
+
+## Advanced Techniques
+
+**Shader Materials:**
+- Custom vertex/fragment shaders for unique effects
+- Uniforms for parameter control
+- Time-based animations
+
+**Post-Processing:**
+- Bloom effects for glow
+- Color grading for mood
+- Distortion effects
+
+**Procedural Generation:**
+- Algorithm-based object creation
+- Noise functions for organic movement
+- Mathematical patterns and fractals
+
+## Scene Ideas & Inspiration
+
+### Potential Scene Concepts:
+1. **Tunnel/Corridor** - Flying through geometric tunnels
+2. **Fractal** - Recursive mathematical patterns
+3. **Liquid/Fluid** - Flowing, organic shapes
+4. **Crystal** - Crystalline structures with refraction
+5. **Space** - Cosmic scenes with stars/planets
+6. **Abstract** - Non-representational artistic forms
+7. **Mechanical** - Industrial/steampunk aesthetics
+8. **Nature** - Organic, plant-like growth patterns
+9. **Digital** - Glitch effects, data visualization
+10. **Minimal** - Clean, simple geometric forms
+
+### Technical Challenges to Explore:
+- Instanced rendering for performance
+- Compute shaders for complex simulations
+- Ray marching for volumetric effects
+- Physics-based animations
+- Procedural textures and materials
+
+## Final Notes
+
+- Focus on creating visually striking scenes suitable for live performance
+- Ensure smooth real-time control via MIDI/UI
+- Test with LFO automation to ensure stable behavior
+- Consider the overall aesthetic consistency with existing scenes
+- Document any special requirements or dependencies
+
+The goal is to create professional-quality visual scenes that respond beautifully to real-time control and enhance live musical performances.`
+  }
+
+  fallbackCopyToClipboard(text) {
+    // Create a temporary textarea element
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    try {
+      document.execCommand('copy')
+      console.log('Fallback copy successful')
+    } catch (err) {
+      console.error('Fallback copy failed:', err)
+    }
+    
+    document.body.removeChild(textArea)
   }
 }
 

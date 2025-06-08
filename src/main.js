@@ -213,8 +213,9 @@ class App {
     this.midiController.on('sceneButton', (data) => {
       // Map button to scene based on configuration
       if (data.row === 'row1' && data.index < 3) {
-        this.sceneManager.switchToScene(data.index)
-        this.updateControlPanel()
+        this.sceneManager.switchToScene(data.index, false, () => {
+          this.updateControlPanel()
+        })
       }
       // Handle button controls for current scene
       else if (data.row === 'row2') {
@@ -330,8 +331,9 @@ class App {
     const sceneButtons = document.querySelectorAll('.scene-btn')
     sceneButtons.forEach((btn, index) => {
       btn.addEventListener('click', () => {
-        this.sceneManager.switchToScene(index)
-        this.updateControlPanel()
+        this.sceneManager.switchToScene(index, false, () => {
+          this.updateControlPanel()
+        })
       })
     })
 
@@ -350,19 +352,22 @@ class App {
     document.addEventListener('keydown', (e) => {
       switch(e.key) {
         case 'ArrowLeft':
-          this.sceneManager.previousScene()
-          this.updateControlPanel()
+          this.sceneManager.previousScene(() => {
+            this.updateControlPanel()
+          })
           break
         case 'ArrowRight':
-          this.sceneManager.nextScene()
-          this.updateControlPanel()
+          this.sceneManager.nextScene(() => {
+            this.updateControlPanel()
+          })
           break
         case '1':
         case '2':
         case '3':
           const sceneIndex = parseInt(e.key) - 1
-          this.sceneManager.switchToScene(sceneIndex)
-          this.updateControlPanel()
+          this.sceneManager.switchToScene(sceneIndex, false, () => {
+            this.updateControlPanel()
+          })
           break
         case 'h':
         case 'H':

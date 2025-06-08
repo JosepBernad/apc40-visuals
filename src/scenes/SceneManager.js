@@ -30,7 +30,7 @@ export class SceneManager {
     }
   }
 
-  switchToScene(index, immediate = false) {
+  switchToScene(index, immediate = false, callback = null) {
     if (index < 0 || index >= this.scenes.length) return;
     if (this.transitioning && !immediate) return;
     if (index === this.currentSceneIndex && this.currentScene) return;
@@ -43,24 +43,29 @@ export class SceneManager {
       if (!immediate) {
         this.fadeOut(this.currentScene, () => {
           this.currentScene.destroy();
-          this.activateNewScene(newScene, index);
+          this.activateNewScene(newScene, index, callback);
         });
       } else {
         this.currentScene.destroy();
-        this.activateNewScene(newScene, index);
+        this.activateNewScene(newScene, index, callback);
       }
     } else {
-      this.activateNewScene(newScene, index);
+      this.activateNewScene(newScene, index, callback);
     }
   }
 
-  activateNewScene(scene, index) {
+  activateNewScene(scene, index, callback = null) {
     // Initialize and start new scene
     scene.init(this.container);
     scene.start();
     
     this.currentScene = scene;
     this.currentSceneIndex = index;
+    
+    // Call the callback after scene is set but before fade in
+    if (callback) {
+      callback();
+    }
     
     // Fade in new scene
     this.fadeIn(scene, () => {
@@ -134,14 +139,14 @@ export class SceneManager {
     return this.scenes.findIndex(scene => scene.name === name);
   }
 
-  nextScene() {
+  nextScene(callback = null) {
     const nextIndex = (this.currentSceneIndex + 1) % this.scenes.length;
-    this.switchToScene(nextIndex);
+    this.switchToScene(nextIndex, false, callback);
   }
 
-  previousScene() {
+  previousScene(callback = null) {
     const prevIndex = (this.currentSceneIndex - 1 + this.scenes.length) % this.scenes.length;
-    this.switchToScene(prevIndex);
+    this.switchToScene(prevIndex, false, callback);
   }
 
   setTransitionDuration(duration) {

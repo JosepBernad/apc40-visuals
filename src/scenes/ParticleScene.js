@@ -53,6 +53,9 @@ export class ParticleScene extends Scene {
     const colors = new Float32Array(this.particleCount * 3);
     const sizes = new Float32Array(this.particleCount);
 
+    // Get initial color based on current hue parameter
+    const initialColor = this.hueToRgb(this.parameters.hue * 360);
+
     for (let i = 0; i < this.particleCount; i++) {
       const i3 = i * 3;
       
@@ -66,10 +69,17 @@ export class ParticleScene extends Scene {
       velocities[i3 + 1] = (Math.random() - 0.5) * 0.1;
       velocities[i3 + 2] = (Math.random() - 0.5) * 0.1;
       
-      // Initial colors
-      colors[i3] = 1;
-      colors[i3 + 1] = 1;
-      colors[i3 + 2] = 1;
+      // Initial colors - use proper color calculation
+      const variation = 0.2;
+      const particleVariation = (Math.sin(i * 0.1) * 0.5 + 0.5) * variation;
+      const hueShift = (i % 100) / 100 * 60;
+      
+      const particleHue = (this.parameters.hue * 360 + hueShift) % 360;
+      const particleColor = this.hueToRgb(particleHue);
+      
+      colors[i3] = Math.max(0, Math.min(1, particleColor.r + (Math.sin(i * 0.2) - 0.5) * particleVariation));
+      colors[i3 + 1] = Math.max(0, Math.min(1, particleColor.g + (Math.sin(i * 0.3) - 0.5) * particleVariation));
+      colors[i3 + 2] = Math.max(0, Math.min(1, particleColor.b + (Math.sin(i * 0.4) - 0.5) * particleVariation));
       
       // Sizes
       sizes[i] = Math.random() * 2 + 0.5;
@@ -196,11 +206,23 @@ export class ParticleScene extends Scene {
       
       for (let i = 0; i < this.particleCount; i++) {
         const i3 = i * 3;
-        // Add some variation
+        // Use deterministic variation based on particle index instead of random
         const variation = 0.2;
-        colors[i3] = color.r + (Math.random() - 0.5) * variation;
-        colors[i3 + 1] = color.g + (Math.random() - 0.5) * variation;
-        colors[i3 + 2] = color.b + (Math.random() - 0.5) * variation;
+        const particleVariation = (Math.sin(i * 0.1) * 0.5 + 0.5) * variation; // 0 to variation
+        const hueShift = (i % 100) / 100 * 60; // Spread hue variations across particles
+        
+        // Calculate varied color for this particle
+        const particleHue = (value * 360 + hueShift) % 360;
+        const particleColor = this.hueToRgb(particleHue);
+        
+        colors[i3] = particleColor.r + (Math.sin(i * 0.2) - 0.5) * particleVariation;
+        colors[i3 + 1] = particleColor.g + (Math.sin(i * 0.3) - 0.5) * particleVariation;
+        colors[i3 + 2] = particleColor.b + (Math.sin(i * 0.4) - 0.5) * particleVariation;
+        
+        // Clamp values to valid range
+        colors[i3] = Math.max(0, Math.min(1, colors[i3]));
+        colors[i3 + 1] = Math.max(0, Math.min(1, colors[i3 + 1]));
+        colors[i3 + 2] = Math.max(0, Math.min(1, colors[i3 + 2]));
       }
       
       this.particleSystem.geometry.attributes.color.needsUpdate = true;

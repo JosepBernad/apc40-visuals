@@ -25,6 +25,10 @@ export class Scene {
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    // Set background color based on theme
+    this.updateBackgroundColor();
+    
     container.appendChild(this.renderer.domElement);
     
     // Setup camera
@@ -38,6 +42,15 @@ export class Scene {
     
     // Handle resize
     window.addEventListener('resize', () => this.handleResize());
+    
+    // Listen for theme changes
+    const observer = new MutationObserver(() => {
+      this.updateBackgroundColor();
+    });
+    observer.observe(document.body, { 
+      attributes: true, 
+      attributeFilter: ['class'] 
+    });
     
     // Scene-specific initialization
     this.setup();
@@ -173,5 +186,20 @@ export class Scene {
       g: g + m,
       b: b + m
     };
+  }
+
+  updateBackgroundColor() {
+    if (!this.renderer) return;
+    
+    // Check if dark theme is active
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    
+    if (isDarkTheme) {
+      // Dark theme: keep black background
+      this.renderer.setClearColor(0x000000, 1);
+    } else {
+      // Light theme: use a whiter background
+      this.renderer.setClearColor(0xf8f8f8, 1);
+    }
   }
 } 

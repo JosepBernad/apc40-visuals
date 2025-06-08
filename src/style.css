@@ -336,13 +336,11 @@ body.dark-theme .theme-toggle:hover {
 .theme-toggle.active {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  color: #34c759;
 }
 
 body.dark-theme .theme-toggle.active {
   background: rgba(29, 29, 31, 0.9);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  color: #34c759;
 }
 
 .theme-icon {
@@ -456,12 +454,4 @@ body.dark-theme .theme-option.active:hover {
   display: none;
 }
 
-.theme-toggle[data-current-theme="light"],
-.theme-toggle[data-current-theme="dark"] {
-  color: #34c759;
-}
 
-.theme-toggle[data-current-theme="light"]:hover,
-.theme-toggle[data-current-theme="dark"]:hover {
-  color: #34c759;
-}

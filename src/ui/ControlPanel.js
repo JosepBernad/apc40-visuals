@@ -111,9 +111,9 @@ export class ControlPanel {
     };
 
     if (type === 'knob' && midiMappings.knobs[controlName]) {
-      return `CC ${midiMappings.knobs[controlName]}`;
+      return `#${midiMappings.knobs[controlName]}`;
     } else if (type === 'fader' && midiMappings.faders[controlName]) {
-      return `CC ${midiMappings.faders[controlName]}`;
+      return `#${midiMappings.faders[controlName]}`;
     } else if (type === 'button' && controlName.includes('[')) {
       // Parse button format like "row2[0]"
       const match = controlName.match(/row(\d)\[(\d)\]/);
@@ -121,7 +121,7 @@ export class ControlPanel {
         const row = `row${match[1]}`;
         const index = parseInt(match[2]);
         if (midiMappings.buttons[row] && midiMappings.buttons[row][index]) {
-          return `Note ${midiMappings.buttons[row][index]}`;
+          return `#${midiMappings.buttons[row][index]}`;
         }
       }
     }
@@ -201,7 +201,7 @@ export class ControlPanel {
         top: 52px;
         right: 0;
         bottom: 0;
-        width: 420px;
+        width: 800px;
         background: transparent;
         color: #1d1d1f;
         font-size: 13px;
@@ -268,7 +268,7 @@ export class ControlPanel {
       }
 
       .control-panel-content {
-        padding: 20px;
+        padding: 32px;
         overflow-y: auto;
         flex: 1;
       }
@@ -290,12 +290,17 @@ export class ControlPanel {
         letter-spacing: 0.06em;
       }
 
-      .knobs-list,
+      .knobs-list {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+
       .buttons-list,
       .faders-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 20px;
       }
 
       .control-item {
@@ -305,9 +310,13 @@ export class ControlPanel {
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 0.5px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
-        padding: 14px 16px;
+        padding: 20px 24px;
         transition: all 0.2s ease;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        min-height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
 
       body.dark-theme .control-item {
@@ -328,8 +337,8 @@ export class ControlPanel {
       .control-info {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        margin-bottom: 8px;
+        gap: 6px;
+        margin-bottom: 12px;
       }
 
       .control-name-group {
@@ -341,7 +350,7 @@ export class ControlPanel {
       .control-name {
         font-family: 'SF Mono', Monaco, 'Courier New', monospace;
         color: #007aff;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 500;
       }
 
@@ -363,7 +372,7 @@ export class ControlPanel {
       .control-label {
         color: #1d1d1f;
         font-weight: 600;
-        font-size: 13px;
+        font-size: 14px;
         line-height: 1.2;
       }
 
@@ -377,9 +386,9 @@ export class ControlPanel {
 
       .control-value {
         position: relative;
-        height: 6px;
+        height: 8px;
         background: rgba(0, 0, 0, 0.1);
-        border-radius: 3px;
+        border-radius: 4px;
         overflow: hidden;
       }
 
@@ -394,7 +403,7 @@ export class ControlPanel {
         height: 100%;
         background: #007aff;
         transition: width 0.2s ease;
-        border-radius: 3px;
+        border-radius: 4px;
       }
 
       .button-state {

@@ -197,6 +197,25 @@ class App {
     }
   }
 
+  cycleThemeMode() {
+    const currentTheme = localStorage.getItem('theme') || 'system'
+    const themes = ['light', 'dark']
+    
+    // If current theme is system or not in our cycle, default to light
+    let nextTheme
+    if (currentTheme === 'light') {
+      nextTheme = 'dark'
+    } else {
+      nextTheme = 'light'
+    }
+    
+    // Save and apply the new theme
+    localStorage.setItem('theme', nextTheme)
+    this.applyTheme(nextTheme)
+    this.updateThemeIcon(nextTheme)
+    this.updateThemeOptions(nextTheme)
+  }
+
   setupMidiListeners() {
     // Connection status
     this.midiController.on('connection', (data) => {
@@ -469,6 +488,11 @@ class App {
         case 'H':
           // Toggle full screen mode
           this.toggleFullscreenMode()
+          break
+        case 'm':
+        case 'M':
+          // Cycle through theme modes
+          this.cycleThemeMode()
           break
       }
     })

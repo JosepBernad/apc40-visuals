@@ -20,9 +20,6 @@ export class WaveScene extends Scene {
       distortion: 0.5,
       wireframe: 0
     };
-    
-    // Initialize target parameters
-    this.targetParameters = { ...this.parameters };
   }
 
   setup() {
@@ -167,9 +164,6 @@ export class WaveScene extends Scene {
   update(deltaTime) {
     this.time += deltaTime;
     
-    // Update parameter interpolation
-    this.updateParameterInterpolation(deltaTime);
-    
     // Update wave layer visibility based on waveCount parameter
     const activeLayerCount = Math.floor(this.parameters.waveCount * 4) + 1; // 1 to 5 layers
     this.waveLayers.forEach((layer, index) => {
@@ -203,10 +197,9 @@ export class WaveScene extends Scene {
   }
 
   onParameterChange(name, value) {
-    if (name === 'hue' || name === 'all') {
-      const hueValue = name === 'all' ? value.hue : value;
-      const hue1 = hueValue * 360;
-      const hue2 = (hueValue * 360 + 180) % 360;
+    if (name === 'hue') {
+      const hue1 = value * 360;
+      const hue2 = (value * 360 + 180) % 360;
       
       const color1 = this.hueToRgb(hue1);
       const color2 = this.hueToRgb(hue2);
@@ -225,9 +218,8 @@ export class WaveScene extends Scene {
       }
     }
     
-    if (name === 'wireframe' || name === 'all') {
-      const wireframeValue = name === 'all' ? value.wireframe : value;
-      const isWireframe = wireframeValue > 0.5;
+    if (name === 'wireframe') {
+      const isWireframe = value > 0.5;
       
       // Update all wave layers
       this.waveLayers.forEach(layer => {

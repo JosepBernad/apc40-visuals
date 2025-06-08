@@ -246,9 +246,6 @@ export class GeometricScene extends Scene {
   update(deltaTime) {
     this.time += deltaTime;
 
-    // Update parameter interpolation
-    this.updateParameterInterpolation(deltaTime);
-
     // Update shapes with more sophisticated animation
     this.shapes.forEach((shape, index) => {
       const { mesh, glowMesh, basePosition, rotationSpeed, phase } = shape;
@@ -314,12 +311,11 @@ export class GeometricScene extends Scene {
   }
 
   onParameterChange(name, value) {
-    if (name === 'hue' || name === 'all') {
-      const hueValue = name === 'all' ? value.hue : value;
-      const color = this.hueToRgb(hueValue * 360);
+    if (name === 'hue') {
+      const color = this.hueToRgb(value * 360);
       this.shapes.forEach((shape, index) => {
         // Vary the hue slightly for each shape
-        const shapeHue = (hueValue * 360 + index * 60) % 360;
+        const shapeHue = (value * 360 + index * 60) % 360;
         const shapeColor = this.hueToRgb(shapeHue);
         
         if (shape.mesh.material.color) {

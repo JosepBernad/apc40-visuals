@@ -266,6 +266,14 @@ class App {
     const currentScene = this.sceneManager.getCurrentScene()
     if (!currentScene) return
 
+    // Special handling for master intensity
+    if (controlName === 'master') {
+      currentScene.setIntensity(value)
+      currentScene.setParameter('intensity', value)
+      this.controlPanel.updateControlValue(controlName, value)
+      return
+    }
+
     // Get the parameter name for this control
     const parameter = this.getParameterForControl(controlName)
     if (parameter) {

@@ -894,10 +894,31 @@ export class ControlPanel {
     const buttonRect = lfoButton.getBoundingClientRect();
     dropdown.style.position = 'fixed';
     dropdown.style.top = `${buttonRect.bottom + 5}px`;
-    dropdown.style.left = `${buttonRect.left}px`;
     dropdown.style.zIndex = '10000';
     
+    // Add to DOM first to get dimensions
     document.body.appendChild(dropdown);
+    
+    // Get dropdown dimensions
+    const dropdownRect = dropdown.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    
+    // Calculate optimal horizontal position
+    let leftPosition = buttonRect.left;
+    
+    // Check if dropdown would overflow on the right
+    if (leftPosition + dropdownRect.width > viewportWidth - 10) {
+      // Position dropdown to the left of the button instead
+      leftPosition = buttonRect.right - dropdownRect.width;
+      
+      // If it still overflows on the left, clamp to viewport
+      if (leftPosition < 10) {
+        leftPosition = 10;
+      }
+    }
+    
+    dropdown.style.left = `${leftPosition}px`;
+    
     this.currentLFODropdown = dropdown;
     
     // Add event listeners

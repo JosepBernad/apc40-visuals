@@ -18,6 +18,9 @@ export class ParticleScene extends Scene {
       turbulence: 0.5,
       trail: 0
     };
+    
+    // Initialize target parameters
+    this.targetParameters = { ...this.parameters };
   }
 
   setup() {
@@ -129,6 +132,9 @@ export class ParticleScene extends Scene {
   update(deltaTime) {
     this.time += deltaTime;
 
+    // Update parameter interpolation
+    this.updateParameterInterpolation(deltaTime);
+
     if (this.particleSystem) {
       // Update shader uniforms
       this.particleSystem.material.uniforms.time.value = this.time * this.parameters.speed;
@@ -187,9 +193,10 @@ export class ParticleScene extends Scene {
   }
 
   onParameterChange(name, value) {
-    if (name === 'hue' && this.particleSystem) {
+    if ((name === 'hue' || name === 'all') && this.particleSystem) {
+      const hueValue = name === 'all' ? value.hue : value;
       const colors = this.particleSystem.geometry.attributes.color.array;
-      const color = this.hueToRgb(value * 360);
+      const color = this.hueToRgb(hueValue * 360);
       
       for (let i = 0; i < this.particleCount; i++) {
         const i3 = i * 3;

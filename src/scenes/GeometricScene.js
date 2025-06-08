@@ -24,6 +24,32 @@ export class GeometricScene extends Scene {
   }
 
   setup() {
+    // Clean up any existing objects first
+    if (this.shapes.length > 0) {
+      this.shapes.forEach(shape => {
+        if (shape.mesh) {
+          this.scene.remove(shape.mesh);
+          if (shape.mesh.geometry) shape.mesh.geometry.dispose();
+          if (shape.mesh.material) shape.mesh.material.dispose();
+        }
+      });
+      this.shapes = [];
+    }
+    
+    if (this.gridLines.length > 0) {
+      this.gridLines.forEach(grid => {
+        this.scene.remove(grid);
+        if (grid.geometry) grid.geometry.dispose();
+        if (grid.material) grid.material.dispose();
+      });
+      this.gridLines = [];
+    }
+    
+    this.glowMeshes = [];
+    
+    // Reset time
+    this.time = 0;
+    
     // Set fog for depth
     this.scene.fog = new THREE.Fog(0x000000, 10, 50);
     
@@ -220,6 +246,9 @@ export class GeometricScene extends Scene {
   update(deltaTime) {
     this.time += deltaTime;
 
+    // Update parameter interpolation
+    this.updateParameterInterpolation(deltaTime);
+
     // Update shapes with more sophisticated animation
     this.shapes.forEach((shape, index) => {
       const { mesh, glowMesh, basePosition, rotationSpeed, phase } = shape;
@@ -285,11 +314,12 @@ export class GeometricScene extends Scene {
   }
 
   onParameterChange(name, value) {
-    if (name === 'hue') {
-      const color = this.hueToRgb(value * 360);
+    if (name === 'hue' || name === 'all') {
+      const hueValue = name === 'all' ? value.hue : value;
+      const color = this.hueToRgb(hueValue * 360);
       this.shapes.forEach((shape, index) => {
         // Vary the hue slightly for each shape
-        const shapeHue = (value * 360 + index * 60) % 360;
+        const shapeHue = (hueValue * 360 + index * 60) % 360;
         const shapeColor = this.hueToRgb(shapeHue);
         
         if (shape.mesh.material.color) {
@@ -319,11 +349,40 @@ export class GeometricScene extends Scene {
         { name: 'deviceKnob8', parameter: 'roughness', value: this.parameters.roughness, label: 'Roughness' }
       ],
       buttons: [
-        { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe Toggle' }
+        { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ],
       faders: [
         { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
       ]
     };
+  }
+
+  destroy() {
+    // Clean up shapes
+    if (this.shapes.length > 0) {
+      this.shapes.forEach(shape => {
+        if (shape.mesh) {
+          this.scene.remove(shape.mesh);
+          if (shape.mesh.geometry) shape.mesh.geometry.dispose();
+          if (shape.mesh.material) shape.mesh.material.dispose();
+        }
+      });
+      this.shapes = [];
+    }
+    
+    // Clean up grid lines
+    if (this.gridLines.length > 0) {
+      this.gridLines.forEach(grid => {
+        this.scene.remove(grid);
+        if (grid.geometry) grid.geometry.dispose();
+        if (grid.material) grid.material.dispose();
+      });
+      this.gridLines = [];
+    }
+    
+    this.glowMeshes = [];
+    
+    // Call parent destroy
+    super.destroy();
   }
 } 

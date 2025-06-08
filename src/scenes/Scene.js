@@ -12,6 +12,7 @@ export class Scene {
       intensity: 1,
       hue: 0
     };
+    this.targetParameters = { ...this.parameters };
     this.audioData = null;
   }
 
@@ -117,8 +118,36 @@ export class Scene {
 
   setParameter(name, value) {
     if (this.parameters.hasOwnProperty(name)) {
-      this.parameters[name] = value;
-      this.onParameterChange(name, value);
+      this.targetParameters[name] = value;
+      // Don't call onParameterChange immediately - let interpolation handle it
+    }
+  }
+
+  updateParameterInterpolation(deltaTime) {
+    // Smooth interpolation for all parameters
+    const interpolationSpeed = 3; // Adjust this to control smoothness (higher = faster)
+    let hasChanges = false;
+    
+    for (const paramName in this.parameters) {
+      if (this.targetParameters[paramName] !== undefined) {
+        const current = this.parameters[paramName];
+        const target = this.targetParameters[paramName];
+        const difference = target - current;
+        
+        if (Math.abs(difference) > 0.001) { // Only interpolate if difference is significant
+          const newValue = current + difference * deltaTime * interpolationSpeed;
+          this.parameters[paramName] = newValue;
+          hasChanges = true;
+        } else {
+          // Snap to target if very close
+          this.parameters[paramName] = target;
+        }
+      }
+    }
+    
+    // Call onParameterChange if there were changes
+    if (hasChanges) {
+      this.onParameterChange('all', this.parameters);
     }
   }
 

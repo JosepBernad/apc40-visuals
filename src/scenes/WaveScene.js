@@ -8,8 +8,6 @@ export class WaveScene extends Scene {
     this.time = 0;
     this.gridSize = 100;
     this.gridSegments = 100;
-    this.currentSpeed = 0.5;
-    this.targetSpeed = 0.5;
     this.waveLayers = [];
     
     // Add scene-specific parameters
@@ -22,9 +20,27 @@ export class WaveScene extends Scene {
       distortion: 0.5,
       wireframe: 0
     };
+    
+    // Initialize target parameters
+    this.targetParameters = { ...this.parameters };
   }
 
   setup() {
+    // Clean up any existing wave layers first
+    if (this.waveLayers.length > 0) {
+      this.waveLayers.forEach(layer => {
+        this.scene.remove(layer);
+        if (layer.geometry) layer.geometry.dispose();
+        if (layer.material) layer.material.dispose();
+      });
+      this.waveLayers = [];
+    }
+    
+    this.waveMesh = null;
+    
+    // Reset time
+    this.time = 0;
+    
     // Create wave mesh
     this.createWave();
     
@@ -151,9 +167,8 @@ export class WaveScene extends Scene {
   update(deltaTime) {
     this.time += deltaTime;
     
-    // Smooth speed transition
-    this.targetSpeed = this.parameters.speed;
-    this.currentSpeed += (this.targetSpeed - this.currentSpeed) * deltaTime * 2; // Smooth interpolation
+    // Update parameter interpolation
+    this.updateParameterInterpolation(deltaTime);
     
     // Update wave layer visibility based on waveCount parameter
     const activeLayerCount = Math.floor(this.parameters.waveCount * 4) + 1; // 1 to 5 layers
@@ -161,10 +176,13 @@ export class WaveScene extends Scene {
       if (index < activeLayerCount) {
         layer.visible = true;
         // Update each layer
-        layer.material.uniforms.time.value = this.time * this.currentSpeed * (1 + index * 0.2);
+        layer.material.uniforms.time.value = this.time * this.parameters.speed * (1 + index * 0.2);
         layer.material.uniforms.frequency.value = this.parameters.frequency * 0.2 * (1 - index * 0.1);
-        layer.material.uniforms.amplitude.value = this.parameters.amplitude * 10 * (1 - index * 0.2);
+        layer.material.uniforms.amplitude.value = this.parameters.amplitude * 20 * (1 - index * 0.2);
         layer.material.uniforms.distortion.value = this.parameters.distortion;
+        
+        // Update wireframe mode
+        layer.material.wireframe = this.parameters.wireframe > 0.5;
         
         // Audio reactivity
         if (this.audioData) {
@@ -185,9 +203,10 @@ export class WaveScene extends Scene {
   }
 
   onParameterChange(name, value) {
-    if (name === 'hue') {
-      const hue1 = value * 360;
-      const hue2 = (value * 360 + 180) % 360;
+    if (name === 'hue' || name === 'all') {
+      const hueValue = name === 'all' ? value.hue : value;
+      const hue1 = hueValue * 360;
+      const hue2 = (hueValue * 360 + 180) % 360;
       
       const color1 = this.hueToRgb(hue1);
       const color2 = this.hueToRgb(hue2);
@@ -205,6 +224,16 @@ export class WaveScene extends Scene {
         }
       }
     }
+    
+    if (name === 'wireframe' || name === 'all') {
+      const wireframeValue = name === 'all' ? value.wireframe : value;
+      const isWireframe = wireframeValue > 0.5;
+      
+      // Update all wave layers
+      this.waveLayers.forEach(layer => {
+        layer.material.wireframe = isWireframe;
+      });
+    }
   }
 
   // Override to return available controls for this scene
@@ -219,11 +248,28 @@ export class WaveScene extends Scene {
         { name: 'deviceKnob6', parameter: 'distortion', value: this.parameters.distortion, label: 'Distortion' }
       ],
       buttons: [
-        { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe Mode' }
+        { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ],
       faders: [
         { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
       ]
     };
+  }
+
+  destroy() {
+    // Clean up wave layers
+    if (this.waveLayers.length > 0) {
+      this.waveLayers.forEach(layer => {
+        this.scene.remove(layer);
+        if (layer.geometry) layer.geometry.dispose();
+        if (layer.material) layer.material.dispose();
+      });
+      this.waveLayers = [];
+    }
+    
+    this.waveMesh = null;
+    
+    // Call parent destroy
+    super.destroy();
   }
 } 

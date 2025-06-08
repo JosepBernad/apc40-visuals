@@ -8,6 +8,9 @@ export class WaveScene extends Scene {
     this.time = 0;
     this.gridSize = 100;
     this.gridSegments = 100;
+    this.currentSpeed = 0.5;
+    this.targetSpeed = 0.5;
+    this.waveLayers = [];
     
     // Add scene-specific parameters
     this.parameters = {
@@ -48,6 +51,7 @@ export class WaveScene extends Scene {
         time: { value: 0 },
         frequency: { value: 0.1 },
         amplitude: { value: 5 },
+        distortion: { value: 0 },
         color1: { value: new THREE.Color(0x0000ff) },
         color2: { value: new THREE.Color(0xff00ff) },
         audioInfluence: { value: 0 }
@@ -56,6 +60,7 @@ export class WaveScene extends Scene {
         uniform float time;
         uniform float frequency;
         uniform float amplitude;
+        uniform float distortion;
         uniform float audioInfluence;
         varying vec2 vUv;
         varying float vElevation;
@@ -64,10 +69,14 @@ export class WaveScene extends Scene {
           vUv = uv;
           vec3 pos = position;
           
-          // Create wave effect
-          float wave1 = sin(pos.x * frequency + time) * amplitude;
-          float wave2 = sin(pos.y * frequency * 0.8 + time * 1.2) * amplitude * 0.8;
-          float wave3 = sin(length(pos.xy) * frequency * 0.5 - time * 0.8) * amplitude * 0.5;
+          // Add distortion to position
+          float distX = pos.x + sin(pos.y * 0.1 + time * 0.5) * distortion * 10.0;
+          float distY = pos.y + cos(pos.x * 0.1 + time * 0.3) * distortion * 10.0;
+          
+          // Create wave effect with distorted coordinates
+          float wave1 = sin(distX * frequency + time) * amplitude;
+          float wave2 = sin(distY * frequency * 0.8 + time * 1.2) * amplitude * 0.8;
+          float wave3 = sin(length(vec2(distX, distY)) * frequency * 0.5 - time * 0.8) * amplitude * 0.5;
           
           // Combine waves
           float elevation = wave1 + wave2 + wave3;
@@ -112,47 +121,60 @@ export class WaveScene extends Scene {
     this.waveMesh.rotation.x = -Math.PI / 2;
     this.scene.add(this.waveMesh);
     
-    // Add secondary wave layer
-    const secondaryMaterial = material.clone();
-    secondaryMaterial.uniforms.color1.value = new THREE.Color(0x00ff00);
-    secondaryMaterial.uniforms.color2.value = new THREE.Color(0xffff00);
-    secondaryMaterial.transparent = true;
-    secondaryMaterial.opacity = 0.3;
+    // Create multiple wave layers
+    this.waveLayers = [this.waveMesh];
     
-    const secondaryWave = new THREE.Mesh(geometry.clone(), secondaryMaterial);
-    secondaryWave.rotation.x = -Math.PI / 2;
-    secondaryWave.position.y = 5;
-    this.scene.add(secondaryWave);
-    
-    this.secondaryWave = secondaryWave;
+    // Add up to 4 additional wave layers
+    for (let i = 1; i < 5; i++) {
+      const layerMaterial = material.clone();
+      const hueOffset = i * 72; // 360/5 for evenly spaced hues
+      const hue1 = (hueOffset) % 360;
+      const hue2 = (hueOffset + 180) % 360;
+      const color1 = this.hueToRgb(hue1);
+      const color2 = this.hueToRgb(hue2);
+      
+      layerMaterial.uniforms.color1.value = new THREE.Color(color1.r, color1.g, color1.b);
+      layerMaterial.uniforms.color2.value = new THREE.Color(color2.r, color2.g, color2.b);
+      layerMaterial.transparent = true;
+      layerMaterial.opacity = 0.3;
+      
+      const layerMesh = new THREE.Mesh(geometry.clone(), layerMaterial);
+      layerMesh.rotation.x = -Math.PI / 2;
+      layerMesh.position.y = i * 3;
+      layerMesh.visible = false; // Start hidden
+      
+      this.scene.add(layerMesh);
+      this.waveLayers.push(layerMesh);
+    }
   }
 
   update(deltaTime) {
     this.time += deltaTime;
     
-    if (this.waveMesh) {
-      // Update main wave
-      this.waveMesh.material.uniforms.time.value = this.time * this.parameters.speed;
-      this.waveMesh.material.uniforms.frequency.value = this.parameters.frequency * 0.2;
-      this.waveMesh.material.uniforms.amplitude.value = this.parameters.amplitude * 10;
-      
-      // Update secondary wave
-      if (this.secondaryWave) {
-        this.secondaryWave.material.uniforms.time.value = this.time * this.parameters.speed * 1.2;
-        this.secondaryWave.material.uniforms.frequency.value = this.parameters.frequency * 0.15;
-        this.secondaryWave.material.uniforms.amplitude.value = this.parameters.amplitude * 8;
-      }
-      
-      // Audio reactivity
-      if (this.audioData) {
-        const audioInfluence = (this.audioData.bass || 0) * 0.5 + (this.audioData.mid || 0) * 0.3;
-        this.waveMesh.material.uniforms.audioInfluence.value = audioInfluence;
+    // Smooth speed transition
+    this.targetSpeed = this.parameters.speed;
+    this.currentSpeed += (this.targetSpeed - this.currentSpeed) * deltaTime * 2; // Smooth interpolation
+    
+    // Update wave layer visibility based on waveCount parameter
+    const activeLayerCount = Math.floor(this.parameters.waveCount * 4) + 1; // 1 to 5 layers
+    this.waveLayers.forEach((layer, index) => {
+      if (index < activeLayerCount) {
+        layer.visible = true;
+        // Update each layer
+        layer.material.uniforms.time.value = this.time * this.currentSpeed * (1 + index * 0.2);
+        layer.material.uniforms.frequency.value = this.parameters.frequency * 0.2 * (1 - index * 0.1);
+        layer.material.uniforms.amplitude.value = this.parameters.amplitude * 10 * (1 - index * 0.2);
+        layer.material.uniforms.distortion.value = this.parameters.distortion;
         
-        if (this.secondaryWave) {
-          this.secondaryWave.material.uniforms.audioInfluence.value = audioInfluence * 0.8;
+        // Audio reactivity
+        if (this.audioData) {
+          const audioInfluence = (this.audioData.bass || 0) * 0.5 + (this.audioData.mid || 0) * 0.3;
+          layer.material.uniforms.audioInfluence.value = audioInfluence * (1 - index * 0.2);
         }
+      } else {
+        layer.visible = false;
       }
-    }
+    });
     
     // Rotate camera around the scene
     const cameraRadius = 40;
@@ -175,14 +197,12 @@ export class WaveScene extends Scene {
         this.waveMesh.material.uniforms.color2.value.setRGB(color2.r, color2.g, color2.b);
       }
       
-      if (this.secondaryWave) {
-        const hue3 = (value * 360 + 90) % 360;
-        const hue4 = (value * 360 + 270) % 360;
-        const color3 = this.hueToRgb(hue3);
-        const color4 = this.hueToRgb(hue4);
-        
-        this.secondaryWave.material.uniforms.color1.value.setRGB(color3.r, color3.g, color3.b);
-        this.secondaryWave.material.uniforms.color2.value.setRGB(color4.r, color4.g, color4.b);
+      if (this.waveLayers.length > 1) {
+        for (let i = 1; i < this.waveLayers.length; i++) {
+          const layer = this.waveLayers[i];
+          layer.material.uniforms.color1.value.setRGB(color1.r, color1.g, color1.b);
+          layer.material.uniforms.color2.value.setRGB(color2.r, color2.g, color2.b);
+        }
       }
     }
   }

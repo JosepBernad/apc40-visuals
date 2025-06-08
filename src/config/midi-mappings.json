@@ -63,7 +63,12 @@
           "speed": "deviceKnob1",
           "complexity": "deviceKnob2",
           "scale": "deviceKnob3",
-          "hue": "deviceKnob4"
+          "hue": "deviceKnob4",
+          "rotation": "deviceKnob5",
+          "glow": "deviceKnob6",
+          "metalness": "deviceKnob7",
+          "roughness": "deviceKnob8",
+          "wireframe": "row2[0]"
         }
       },
       "particles": {
@@ -72,7 +77,10 @@
           "count": "deviceKnob1",
           "speed": "deviceKnob2",
           "spread": "deviceKnob3",
-          "hue": "deviceKnob4"
+          "hue": "deviceKnob4",
+          "size": "deviceKnob5",
+          "turbulence": "deviceKnob6",
+          "trail": "row2[0]"
         }
       },
       "waves": {
@@ -81,13 +89,17 @@
           "frequency": "deviceKnob1",
           "amplitude": "deviceKnob2",
           "speed": "deviceKnob3",
-          "hue": "deviceKnob4"
+          "hue": "deviceKnob4",
+          "waveCount": "deviceKnob5",
+          "distortion": "deviceKnob6",
+          "wireframe": "row2[0]"
         }
       }
     },
     "global": {
       "intensity": "master",
-      "transition": "crossfader"
+      "transition": "crossfader",
+      "audioToggle": "row5[7]"
     }
   }
 } 

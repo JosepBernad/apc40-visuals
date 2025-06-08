@@ -14,7 +14,10 @@ export class WaveScene extends Scene {
       ...this.parameters,
       frequency: 0.5,
       amplitude: 0.5,
-      speed: 0.5
+      speed: 0.5,
+      waveCount: 0.5,
+      distortion: 0.5,
+      wireframe: 0
     };
   }
 
@@ -182,5 +185,25 @@ export class WaveScene extends Scene {
         this.secondaryWave.material.uniforms.color2.value.setRGB(color4.r, color4.g, color4.b);
       }
     }
+  }
+
+  // Override to return available controls for this scene
+  getControls() {
+    return {
+      knobs: [
+        { name: 'deviceKnob1', parameter: 'frequency', value: this.parameters.frequency, label: 'Frequency' },
+        { name: 'deviceKnob2', parameter: 'amplitude', value: this.parameters.amplitude, label: 'Amplitude' },
+        { name: 'deviceKnob3', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+        { name: 'deviceKnob4', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'deviceKnob5', parameter: 'waveCount', value: this.parameters.waveCount, label: 'Wave Layers' },
+        { name: 'deviceKnob6', parameter: 'distortion', value: this.parameters.distortion, label: 'Distortion' }
+      ],
+      buttons: [
+        { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe Mode' }
+      ],
+      faders: [
+        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+      ]
+    };
   }
 } 

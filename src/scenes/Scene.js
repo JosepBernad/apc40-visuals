@@ -135,6 +135,16 @@ export class Scene {
     this.renderer.domElement.style.opacity = value;
   }
 
+  // Get available controls for this scene
+  getControls() {
+    // Override in subclasses
+    return {
+      knobs: [],
+      buttons: [],
+      faders: []
+    };
+  }
+
   // Utility method to convert hue to RGB
   hueToRgb(h) {
     const s = 1;

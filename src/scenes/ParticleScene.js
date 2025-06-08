@@ -13,7 +13,10 @@ export class ParticleScene extends Scene {
       ...this.parameters,
       count: 0.5,
       speed: 0.5,
-      spread: 0.5
+      spread: 0.5,
+      size: 0.5,
+      turbulence: 0.5,
+      trail: 0
     };
   }
 
@@ -172,5 +175,25 @@ export class ParticleScene extends Scene {
       
       this.particleSystem.geometry.attributes.color.needsUpdate = true;
     }
+  }
+
+  // Override to return available controls for this scene
+  getControls() {
+    return {
+      knobs: [
+        { name: 'deviceKnob1', parameter: 'count', value: this.parameters.count, label: 'Particle Count' },
+        { name: 'deviceKnob2', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+        { name: 'deviceKnob3', parameter: 'spread', value: this.parameters.spread, label: 'Spread' },
+        { name: 'deviceKnob4', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'deviceKnob5', parameter: 'size', value: this.parameters.size, label: 'Particle Size' },
+        { name: 'deviceKnob6', parameter: 'turbulence', value: this.parameters.turbulence, label: 'Turbulence' }
+      ],
+      buttons: [
+        { name: 'row2[0]', parameter: 'trail', value: this.parameters.trail, label: 'Trail Effect' }
+      ],
+      faders: [
+        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+      ]
+    };
   }
 } 

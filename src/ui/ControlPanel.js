@@ -163,7 +163,7 @@ export class ControlPanel {
       <div class="control-info">
         <div class="control-header">
           <span class="control-label">${control.label}</span>
-          ${hasLFO ? `<button class="lfo-toggle ${lfoActive ? 'active' : ''}" data-control="${control.name}" title="Toggle LFO">
+          ${hasLFO ? `<button class="lfo-toggle ${lfoActive ? 'active' : ''}" data-control="${control.name}" title="Toggle LFO (Right-click to configure)">
             <span class="lfo-icon-off">⏻</span>
             <span class="lfo-icon-on">⏻</span>
           </button>` : ''}

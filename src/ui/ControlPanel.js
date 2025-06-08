@@ -183,6 +183,8 @@ export class ControlPanel {
     // Add LFO toggle event listener if applicable
     if (hasLFO) {
       const lfoButton = item.querySelector('.lfo-toggle');
+      
+      // Left click - toggle on/off
       lfoButton.addEventListener('click', (e) => {
         e.stopPropagation();
         
@@ -206,6 +208,13 @@ export class ControlPanel {
         window.dispatchEvent(new CustomEvent('lfoToggle', {
           detail: { controlName: control.name, active: newLfoState }
         }));
+      });
+      
+      // Right click - show configuration dropdown
+      lfoButton.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showLFOConfigDropdown(control.name, lfoButton);
       });
     }
     
@@ -660,6 +669,162 @@ export class ControlPanel {
         0%, 100% { opacity: 0.8; }
         50% { opacity: 1; }
       }
+
+      .lfo-config-dropdown {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        min-width: 250px;
+        font-size: 12px;
+        overflow: hidden;
+      }
+
+      body.dark-theme .lfo-config-dropdown {
+        background: rgba(29, 29, 31, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+
+      .lfo-config-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+        color: #1d1d1f;
+      }
+
+      body.dark-theme .lfo-config-header {
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+        color: #f5f5f7;
+      }
+
+      .lfo-config-close {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: #666;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .lfo-config-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #333;
+      }
+
+      body.dark-theme .lfo-config-close {
+        color: #999;
+      }
+
+      body.dark-theme .lfo-config-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ccc;
+      }
+
+      .lfo-config-content {
+        padding: 16px;
+      }
+
+      .lfo-config-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .lfo-config-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .lfo-config-row label {
+        min-width: 70px;
+        font-weight: 500;
+        color: #1d1d1f;
+      }
+
+      body.dark-theme .lfo-config-row label {
+        color: #f5f5f7;
+      }
+
+      .lfo-config-row input[type="range"] {
+        flex: 1;
+        height: 4px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 2px;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      body.dark-theme .lfo-config-row input[type="range"] {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .lfo-config-row input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        background: #007aff;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .lfo-config-row input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: #007aff;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .lfo-config-row select {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.8);
+        color: #1d1d1f;
+        font-size: 12px;
+        outline: none;
+      }
+
+      body.dark-theme .lfo-config-row select {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #f5f5f7;
+      }
+
+      .lfo-frequency-value,
+      .lfo-amplitude-value,
+      .lfo-offset-value {
+        min-width: 45px;
+        text-align: right;
+        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        font-size: 11px;
+        color: #666;
+      }
+
+      body.dark-theme .lfo-frequency-value,
+      body.dark-theme .lfo-amplitude-value,
+      body.dark-theme .lfo-offset-value {
+        color: #999;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -675,5 +840,136 @@ export class ControlPanel {
     // This will be called from the main app to get LFO state
     // For now, return false - this will be updated when we integrate with LFOManager
     return window.app?.lfoManager?.getLFOState(controlName) || false;
+  }
+
+  showLFOConfigDropdown(controlName, lfoButton) {
+    // Remove any existing dropdown
+    this.closeLFOConfigDropdown();
+    
+    // Get current LFO configuration
+    const lfoConfig = window.app?.lfoManager?.lfos?.get(controlName) || {
+      frequency: 0.5,
+      amplitude: 0.3,
+      offset: 0.5,
+      waveform: 'sine'
+    };
+    
+    // Create dropdown
+    const dropdown = document.createElement('div');
+    dropdown.className = 'lfo-config-dropdown';
+    dropdown.innerHTML = `
+      <div class="lfo-config-header">
+        <span>LFO Settings</span>
+        <button class="lfo-config-close">×</button>
+      </div>
+      <div class="lfo-config-content">
+        <div class="lfo-config-row">
+          <label>Frequency</label>
+          <input type="range" class="lfo-frequency" min="0.1" max="5" step="0.1" value="${lfoConfig.frequency}">
+          <span class="lfo-frequency-value">${lfoConfig.frequency.toFixed(1)} Hz</span>
+        </div>
+        <div class="lfo-config-row">
+          <label>Amplitude</label>
+          <input type="range" class="lfo-amplitude" min="0" max="1" step="0.05" value="${lfoConfig.amplitude}">
+          <span class="lfo-amplitude-value">${Math.round(lfoConfig.amplitude * 100)}%</span>
+        </div>
+        <div class="lfo-config-row">
+          <label>Offset</label>
+          <input type="range" class="lfo-offset" min="0" max="1" step="0.05" value="${lfoConfig.offset}">
+          <span class="lfo-offset-value">${Math.round(lfoConfig.offset * 100)}%</span>
+        </div>
+        <div class="lfo-config-row">
+          <label>Waveform</label>
+          <select class="lfo-waveform">
+            <option value="sine" ${lfoConfig.waveform === 'sine' ? 'selected' : ''}>Sine</option>
+            <option value="triangle" ${lfoConfig.waveform === 'triangle' ? 'selected' : ''}>Triangle</option>
+            <option value="square" ${lfoConfig.waveform === 'square' ? 'selected' : ''}>Square</option>
+            <option value="sawtooth" ${lfoConfig.waveform === 'sawtooth' ? 'selected' : ''}>Sawtooth</option>
+          </select>
+        </div>
+      </div>
+    `;
+    
+    // Position dropdown relative to button
+    const buttonRect = lfoButton.getBoundingClientRect();
+    dropdown.style.position = 'fixed';
+    dropdown.style.top = `${buttonRect.bottom + 5}px`;
+    dropdown.style.left = `${buttonRect.left}px`;
+    dropdown.style.zIndex = '10000';
+    
+    document.body.appendChild(dropdown);
+    this.currentLFODropdown = dropdown;
+    
+    // Add event listeners
+    this.setupLFOConfigListeners(dropdown, controlName);
+    
+    // Close dropdown when clicking outside
+    setTimeout(() => {
+      document.addEventListener('click', this.closeLFOConfigDropdown.bind(this));
+    }, 0);
+  }
+
+  setupLFOConfigListeners(dropdown, controlName) {
+    const frequencySlider = dropdown.querySelector('.lfo-frequency');
+    const amplitudeSlider = dropdown.querySelector('.lfo-amplitude');
+    const offsetSlider = dropdown.querySelector('.lfo-offset');
+    const waveformSelect = dropdown.querySelector('.lfo-waveform');
+    const closeButton = dropdown.querySelector('.lfo-config-close');
+    
+    const frequencyValue = dropdown.querySelector('.lfo-frequency-value');
+    const amplitudeValue = dropdown.querySelector('.lfo-amplitude-value');
+    const offsetValue = dropdown.querySelector('.lfo-offset-value');
+    
+    // Update frequency
+    frequencySlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      frequencyValue.textContent = `${value.toFixed(1)} Hz`;
+      this.updateLFOConfig(controlName, { frequency: value });
+    });
+    
+    // Update amplitude
+    amplitudeSlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      amplitudeValue.textContent = `${Math.round(value * 100)}%`;
+      this.updateLFOConfig(controlName, { amplitude: value });
+    });
+    
+    // Update offset
+    offsetSlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      offsetValue.textContent = `${Math.round(value * 100)}%`;
+      this.updateLFOConfig(controlName, { offset: value });
+    });
+    
+    // Update waveform
+    waveformSelect.addEventListener('change', (e) => {
+      this.updateLFOConfig(controlName, { waveform: e.target.value });
+    });
+    
+    // Close button
+    closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeLFOConfigDropdown();
+    });
+    
+    // Prevent dropdown from closing when clicking inside
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  updateLFOConfig(controlName, config) {
+    // Dispatch event to update LFO configuration
+    window.dispatchEvent(new CustomEvent('lfoConfigUpdate', {
+      detail: { controlName, config }
+    }));
+  }
+
+  closeLFOConfigDropdown() {
+    if (this.currentLFODropdown) {
+      this.currentLFODropdown.remove();
+      this.currentLFODropdown = null;
+      document.removeEventListener('click', this.closeLFOConfigDropdown.bind(this));
+    }
   }
 } 

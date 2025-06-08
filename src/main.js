@@ -358,6 +358,13 @@ class App {
       console.log(`LFO ${active ? 'enabled' : 'disabled'} for ${controlName}`)
     })
 
+    // Listen for LFO configuration updates
+    window.addEventListener('lfoConfigUpdate', (e) => {
+      const { controlName, config } = e.detail
+      this.lfoManager.setLFO(controlName, config)
+      console.log(`LFO config updated for ${controlName}:`, config)
+    })
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       switch(e.key) {

@@ -21,6 +21,21 @@ export class ParticleScene extends Scene {
   }
 
   setup() {
+    // Clean up any existing particle system first
+    if (this.particleSystem) {
+      this.scene.remove(this.particleSystem);
+      if (this.particleSystem.geometry) {
+        this.particleSystem.geometry.dispose();
+      }
+      if (this.particleSystem.material) {
+        this.particleSystem.material.dispose();
+      }
+      this.particleSystem = null;
+    }
+    
+    // Reset time
+    this.time = 0;
+    
     // Create particle system
     this.createParticles();
     
@@ -125,30 +140,42 @@ export class ParticleScene extends Scene {
       const activeCount = Math.floor(this.particleCount * this.parameters.count);
       const spreadFactor = this.parameters.spread * 50;
       
-      for (let i = 0; i < activeCount; i++) {
+      for (let i = 0; i < this.particleCount; i++) {
         const i3 = i * 3;
         
-        // Update positions based on velocity
-        positions[i3] += velocities[i3] * this.parameters.speed;
-        positions[i3 + 1] += velocities[i3 + 1] * this.parameters.speed;
-        positions[i3 + 2] += velocities[i3 + 2] * this.parameters.speed;
-        
-        // Wrap around
-        if (Math.abs(positions[i3]) > spreadFactor) positions[i3] *= -1;
-        if (Math.abs(positions[i3 + 1]) > spreadFactor) positions[i3 + 1] *= -1;
-        if (Math.abs(positions[i3 + 2]) > spreadFactor) positions[i3 + 2] *= -1;
-        
-        // Audio reactivity
-        if (this.audioData && this.audioData.bass) {
-          const audioInfluence = this.audioData.bass * 2;
-          velocities[i3 + 1] += (Math.random() - 0.5) * audioInfluence * 0.01;
+        if (i < activeCount) {
+          // Particle should be active
+          
+          // If particle was hidden (Y position at -1000), reset it
+          if (positions[i3 + 1] < -500) {
+            positions[i3] = (Math.random() - 0.5) * spreadFactor;
+            positions[i3 + 1] = (Math.random() - 0.5) * spreadFactor;
+            positions[i3 + 2] = (Math.random() - 0.5) * spreadFactor;
+            
+            velocities[i3] = (Math.random() - 0.5) * 0.1;
+            velocities[i3 + 1] = (Math.random() - 0.5) * 0.1;
+            velocities[i3 + 2] = (Math.random() - 0.5) * 0.1;
+          }
+          
+          // Update positions based on velocity
+          positions[i3] += velocities[i3] * this.parameters.speed;
+          positions[i3 + 1] += velocities[i3 + 1] * this.parameters.speed;
+          positions[i3 + 2] += velocities[i3 + 2] * this.parameters.speed;
+          
+          // Wrap around
+          if (Math.abs(positions[i3]) > spreadFactor) positions[i3] *= -1;
+          if (Math.abs(positions[i3 + 1]) > spreadFactor) positions[i3 + 1] *= -1;
+          if (Math.abs(positions[i3 + 2]) > spreadFactor) positions[i3 + 2] *= -1;
+          
+          // Audio reactivity
+          if (this.audioData && this.audioData.bass) {
+            const audioInfluence = this.audioData.bass * 2;
+            velocities[i3 + 1] += (Math.random() - 0.5) * audioInfluence * 0.01;
+          }
+        } else {
+          // Hide inactive particles
+          positions[i3 + 1] = -1000;
         }
-      }
-      
-      // Hide inactive particles
-      for (let i = activeCount; i < this.particleCount; i++) {
-        const i3 = i * 3;
-        positions[i3 + 1] = -1000;
       }
       
       this.particleSystem.geometry.attributes.position.needsUpdate = true;
@@ -195,5 +222,22 @@ export class ParticleScene extends Scene {
         { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
       ]
     };
+  }
+
+  destroy() {
+    // Clean up particle system
+    if (this.particleSystem) {
+      this.scene.remove(this.particleSystem);
+      if (this.particleSystem.geometry) {
+        this.particleSystem.geometry.dispose();
+      }
+      if (this.particleSystem.material) {
+        this.particleSystem.material.dispose();
+      }
+      this.particleSystem = null;
+    }
+    
+    // Call parent destroy
+    super.destroy();
   }
 } 

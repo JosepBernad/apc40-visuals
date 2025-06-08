@@ -241,6 +241,8 @@ class App {
         const currentScene = this.sceneManager.getCurrentScene()
         if (currentScene) {
           currentScene.setIntensity(data.value)
+          // Update the intensity parameter so it's reflected in controls
+          currentScene.setParameter('intensity', data.value)
           this.controlPanel.updateControlValue(data.name, data.value)
         }
       } else {

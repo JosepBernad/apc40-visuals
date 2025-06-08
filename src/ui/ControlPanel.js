@@ -56,6 +56,8 @@ export class ControlPanel {
     const knobsList = this.container.querySelector('.knobs-list');
     knobsList.innerHTML = '';
     controls.knobs.forEach(knob => {
+      // Add LFO state to control data
+      knob.lfoActive = this.getLFOState(knob.name);
       const item = this.createControlItem(knob, 'knob');
       knobsList.appendChild(item);
     });
@@ -72,6 +74,8 @@ export class ControlPanel {
     const fadersList = this.container.querySelector('.faders-list');
     fadersList.innerHTML = '';
     controls.faders.forEach(fader => {
+      // Add LFO state to control data
+      fader.lfoActive = this.getLFOState(fader.name);
       const item = this.createControlItem(fader, 'fader');
       fadersList.appendChild(item);
     });
@@ -151,9 +155,19 @@ export class ControlPanel {
       });
     }
     
+    // Check if this control has LFO capability (knobs and faders)
+    const hasLFO = type === 'knob' || type === 'fader';
+    const lfoActive = control.lfoActive || false;
+    
     item.innerHTML = `
       <div class="control-info">
-        <span class="control-label">${control.label}</span>
+        <div class="control-header">
+          <span class="control-label">${control.label}</span>
+          ${hasLFO ? `<button class="lfo-toggle ${lfoActive ? 'active' : ''}" data-control="${control.name}" title="Toggle LFO">
+            <span class="lfo-icon-off">○</span>
+            <span class="lfo-icon-on">●</span>
+          </button>` : ''}
+        </div>
         <div class="control-name-group">
           <span class="control-name">${control.name}</span>
           ${midiNumber ? `<span class="midi-chip">${midiNumber}</span>` : ''}
@@ -165,6 +179,35 @@ export class ControlPanel {
         </div>
       </div>
     `;
+    
+    // Add LFO toggle event listener if applicable
+    if (hasLFO) {
+      const lfoButton = item.querySelector('.lfo-toggle');
+      lfoButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Get current LFO state dynamically
+        const currentLfoState = this.getLFOState(control.name);
+        const newLfoState = !currentLfoState;
+        
+        lfoButton.classList.toggle('active', newLfoState);
+        
+        // Update visual state immediately
+        const valueBar = item.querySelector('.value-bar');
+        if (valueBar) {
+          if (newLfoState) {
+            valueBar.classList.add('lfo-modulated');
+          } else {
+            valueBar.classList.remove('lfo-modulated');
+          }
+        }
+        
+        // Dispatch LFO toggle event
+        window.dispatchEvent(new CustomEvent('lfoToggle', {
+          detail: { controlName: control.name, active: newLfoState }
+        }));
+      });
+    }
     
     return item;
   }
@@ -182,7 +225,48 @@ export class ControlPanel {
     const control = allControls.find(c => c.name === controlName);
     if (control) {
       control.value = value;
-      this.updateControls(this.controls);
+      
+      // Update the visual representation in the DOM
+      this.updateControlVisual(controlName, value);
+    }
+  }
+
+  updateControlVisual(controlName, value) {
+    if (!this.container) return;
+    
+    // Find the control item in the DOM
+    const controlItems = this.container.querySelectorAll('.control-item');
+    
+    for (const item of controlItems) {
+      const nameElement = item.querySelector('.control-name');
+      if (nameElement && nameElement.textContent === controlName) {
+        // Update the value bar
+        const valueBar = item.querySelector('.value-bar');
+        if (valueBar) {
+          const percentage = Math.round(value * 100);
+          valueBar.style.width = `${percentage}%`;
+          
+          // Check current LFO state and update visual effect accordingly
+          const lfoButton = item.querySelector('.lfo-toggle');
+          const isLfoActive = lfoButton && lfoButton.classList.contains('active');
+          
+          if (isLfoActive) {
+            valueBar.classList.add('lfo-modulated');
+          } else {
+            valueBar.classList.remove('lfo-modulated');
+          }
+        }
+        
+        // Update button state if it's a button
+        const isButton = item.classList.contains('control-item-button');
+        if (isButton) {
+          const isOn = value > 0.5;
+          item.classList.toggle('button-on', isOn);
+          item.classList.toggle('button-off', !isOn);
+        }
+        
+        break;
+      }
     }
   }
 
@@ -310,10 +394,10 @@ export class ControlPanel {
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 0.5px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
-        padding: 20px 24px;
+        padding: 16px 20px;
         transition: all 0.2s ease;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        min-height: 90px;
+        min-height: 80px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -339,6 +423,13 @@ export class ControlPanel {
         flex-direction: column;
         gap: 6px;
         margin-bottom: 12px;
+      }
+
+      .control-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
       }
 
       .control-name-group {
@@ -374,6 +465,7 @@ export class ControlPanel {
         font-weight: 600;
         font-size: 14px;
         line-height: 1.2;
+        flex: 1;
       }
 
       body.dark-theme .control-label {
@@ -488,6 +580,86 @@ export class ControlPanel {
       body.dark-theme .control-panel-content::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
       }
+
+      .lfo-toggle {
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        min-width: 24px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      body.dark-theme .lfo-toggle {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #999;
+      }
+
+      .lfo-toggle:hover {
+        background: rgba(0, 0, 0, 0.15);
+        border-color: rgba(0, 0, 0, 0.3);
+      }
+
+      body.dark-theme .lfo-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .lfo-toggle.active {
+        background: #ff9500;
+        border-color: #ff9500;
+        color: white;
+        box-shadow: 0 0 8px rgba(255, 149, 0, 0.3);
+      }
+
+      .lfo-toggle.active:hover {
+        background: #e6850e;
+        border-color: #e6850e;
+      }
+
+      .lfo-icon-off,
+      .lfo-icon-on {
+        position: absolute;
+        transition: opacity 0.2s ease;
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .lfo-toggle .lfo-icon-off {
+        opacity: 1;
+      }
+
+      .lfo-toggle .lfo-icon-on {
+        opacity: 0;
+      }
+
+      .lfo-toggle.active .lfo-icon-off {
+        opacity: 0;
+      }
+
+      .lfo-toggle.active .lfo-icon-on {
+        opacity: 1;
+      }
+
+      .value-bar.lfo-modulated {
+        background: linear-gradient(90deg, #ff9500, #007aff);
+        animation: lfo-pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes lfo-pulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+      }
     `;
     document.head.appendChild(style);
   }
@@ -497,5 +669,11 @@ export class ControlPanel {
       this.container.remove();
       this.container = null;
     }
+  }
+
+  getLFOState(controlName) {
+    // This will be called from the main app to get LFO state
+    // For now, return false - this will be updated when we integrate with LFOManager
+    return window.app?.lfoManager?.getLFOState(controlName) || false;
   }
 } 

@@ -3,6 +3,7 @@ import { MidiController } from './midi/MidiController.js'
 import { AudioAnalyzer } from './audio/AudioAnalyzer.js'
 import { SceneManager } from './scenes/SceneManager.js'
 import { ControlPanel } from './ui/ControlPanel.js'
+import { LFOManager } from './audio/LFOManager.js'
 import midiMappings from './config/midi-mappings.json'
 
 class App {
@@ -11,6 +12,7 @@ class App {
     this.audioAnalyzer = new AudioAnalyzer()
     this.sceneManager = null
     this.controlPanel = new ControlPanel()
+    this.lfoManager = new LFOManager()
     this.audioActive = false
     this.lastFrameTime = 0
     this.fullscreenMode = false
@@ -260,7 +262,7 @@ class App {
     })
   }
 
-  updateSceneParameter(controlName, value) {
+  updateSceneParameter(controlName, value, isLFO = false) {
     const currentScene = this.sceneManager.getCurrentScene()
     if (!currentScene) return
 
@@ -268,6 +270,7 @@ class App {
     const parameter = this.getParameterForControl(controlName)
     if (parameter) {
       this.sceneManager.updateSceneParameter(parameter, value)
+      // Update control panel for both manual and LFO changes
       this.controlPanel.updateControlValue(controlName, value)
     }
   }
@@ -348,6 +351,13 @@ class App {
       this.updateSceneParameter(controlName, value)
     })
 
+    // Listen for LFO toggle events
+    window.addEventListener('lfoToggle', (e) => {
+      const { controlName, active } = e.detail
+      this.lfoManager.toggleLFO(controlName, active)
+      console.log(`LFO ${active ? 'enabled' : 'disabled'} for ${controlName}`)
+    })
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       switch(e.key) {
@@ -423,6 +433,16 @@ class App {
     const deltaTime = (currentTime - this.lastFrameTime) / 1000
     this.lastFrameTime = currentTime
     
+    // Update LFO modulations
+    const lfoModulations = this.lfoManager.update(deltaTime)
+    
+    // Apply LFO modulations to scene parameters
+    if (lfoModulations.size > 0) {
+      for (const [controlName, value] of lfoModulations) {
+        this.updateSceneParameter(controlName, value, true) // true indicates LFO source
+      }
+    }
+    
     // Update audio data
     if (this.audioActive && this.audioAnalyzer.isRunning()) {
       const audioData = {
@@ -436,10 +456,74 @@ class App {
       this.sceneManager.updateAudioData(audioData)
     }
   }
+
+  resetAllParameters() {
+    console.log('PANIC! Resetting all parameters to defaults...')
+    
+    const currentScene = this.sceneManager.getCurrentScene()
+    if (!currentScene) return
+    
+    // Reset all LFOs
+    this.lfoManager.reset()
+    
+    // Define default values for each scene type
+    const defaultValues = {
+      'Geometric': {
+        speed: 0.5,
+        complexity: 0.5,
+        scale: 0.5,
+        rotation: 0.5,
+        glow: 0.5,
+        wireframe: 0,
+        metalness: 0.8,
+        roughness: 0.2,
+        hue: 0,
+        intensity: 1
+      },
+      'Particles': {
+        count: 0.5,
+        speed: 0.5,
+        spread: 0.5,
+        size: 0.5,
+        turbulence: 0.5,
+        trail: 0,
+        hue: 0,
+        intensity: 1
+      },
+      'Waves': {
+        frequency: 0.5,
+        amplitude: 0.5,
+        speed: 0.5,
+        waveCount: 0.5,
+        distortion: 0.5,
+        wireframe: 0,
+        hue: 0,
+        intensity: 1
+      }
+    }
+    
+    const defaults = defaultValues[currentScene.name]
+    if (defaults) {
+      // Reset all parameters
+      Object.keys(defaults).forEach(param => {
+        currentScene.setParameter(param, defaults[param])
+      })
+      
+      // Update control panel to reflect reset values
+      this.updateControlPanel()
+      
+      // Visual feedback - flash the scene
+      currentScene.setIntensity(0.2)
+      setTimeout(() => {
+        currentScene.setIntensity(defaults.intensity)
+      }, 100)
+    }
+  }
 }
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   const app = new App()
+  window.app = app // Expose globally for control panel access
   app.init()
 })

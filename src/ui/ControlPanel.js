@@ -99,7 +99,7 @@ export class ControlPanel {
         track6: 53,
         track7: 54,
         track8: 55,
-        master: 56
+        master: 14
       },
       buttons: {
         'row1': [53, 54, 55, 56, 57, 58, 59, 60],

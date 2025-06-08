@@ -13,11 +13,52 @@
         <button class="scene-btn" data-scene="1">Particles</button>
         <button class="scene-btn" data-scene="2">Waves</button>
       </div>
-      <div class="status">
-        <span id="midi-status">MIDI: Disconnected</span>
-        <span id="audio-status">Audio: Inactive</span>
-      </div>
     </nav>
+    
+    <div class="status">
+      <div class="theme-selector">
+        <button class="theme-toggle" id="theme-toggle" title="Change Theme">
+          <svg class="theme-icon" id="theme-icon-system" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M5 15H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8 12V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <svg class="theme-icon" id="theme-icon-light" style="display: none;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 1V3M8 13V15M15 8H13M3 8H1M12.95 3.05L11.54 4.46M4.46 11.54L3.05 12.95M12.95 12.95L11.54 11.54M4.46 4.46L3.05 3.05" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <svg class="theme-icon" id="theme-icon-dark" style="display: none;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.5 2C5.5 2 3 4.5 3 7.5C3 10.5 5.5 13 8.5 13C10.5 13 12.5 11.5 13.5 9.5C13 9.5 12.5 9.5 12 9.5C9 9.5 6.5 7 6.5 4C6.5 3.5 6.5 3 6.5 2.5C6 2.5 5.5 2 5 2H8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="theme-dropdown" id="theme-dropdown" style="display: none;">
+          <button class="theme-option" data-theme="light">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 1V3M8 13V15M15 8H13M3 8H1M12.95 3.05L11.54 4.46M4.46 11.54L3.05 12.95M12.95 12.95L11.54 11.54M4.46 4.46L3.05 3.05" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>Light</span>
+          </button>
+          <button class="theme-option" data-theme="system">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M5 15H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M8 12V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span>System</span>
+          </button>
+          <button class="theme-option" data-theme="dark">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.5 2C5.5 2 3 4.5 3 7.5C3 10.5 5.5 13 8.5 13C10.5 13 12.5 11.5 13.5 9.5C13 9.5 12.5 9.5 12 9.5C9 9.5 6.5 7 6.5 4C6.5 3.5 6.5 3 6.5 2.5C6 2.5 5.5 2 5 2H8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <span>Dark</span>
+          </button>
+        </div>
+      </div>
+      <span id="midi-status">MIDI: Disconnected</span>
+      <span id="audio-status">Audio: Inactive</span>
+    </div>
+    
     <div id="canvas-container"></div>
     
     <!-- Keyboard shortcuts help -->

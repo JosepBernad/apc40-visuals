@@ -11,14 +11,6 @@ export class ControlPanel {
     this.container.id = 'control-panel';
     this.container.className = 'control-panel';
     
-    // Create header
-    const header = document.createElement('div');
-    header.className = 'control-panel-header';
-    header.innerHTML = `
-      <h3>Scene Controls</h3>
-      <button class="toggle-btn" title="Toggle Panel">◀</button>
-    `;
-    
     // Create content area
     const content = document.createElement('div');
     content.className = 'control-panel-content';
@@ -37,13 +29,19 @@ export class ControlPanel {
       </div>
     `;
     
-    this.container.appendChild(header);
     this.container.appendChild(content);
     document.body.appendChild(this.container);
     
-    // Setup toggle functionality
-    const toggleBtn = header.querySelector('.toggle-btn');
-    toggleBtn.addEventListener('click', () => this.toggle());
+    // Add toggle button
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'toggle-btn';
+    toggleBtn.innerHTML = '◀';
+    toggleBtn.title = 'Toggle Fullscreen';
+    toggleBtn.addEventListener('click', () => {
+      // Dispatch a custom event that main.js can listen to
+      window.dispatchEvent(new Event('toggleFullscreen'));
+    });
+    this.container.appendChild(toggleBtn);
     
     // Add styles
     this.addStyles();
@@ -190,68 +188,69 @@ export class ControlPanel {
         right: 0;
         bottom: 0;
         width: 380px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-left: 0.5px solid rgba(0, 0, 0, 0.1);
+        background: transparent;
         color: #1d1d1f;
         font-size: 13px;
-        transition: transform 0.3s ease;
+        transition: opacity 0.3s ease, filter 0.3s ease;
         z-index: 999;
         overflow: hidden;
         display: flex;
         flex-direction: column;
+        opacity: 1;
+        filter: blur(0px);
       }
 
-      @media (prefers-color-scheme: dark) {
-        .control-panel {
-          background: rgba(29, 29, 31, 0.95);
-          border-left-color: rgba(255, 255, 255, 0.1);
-          color: #f5f5f7;
-        }
+      body.dark-theme .control-panel {
+        color: #f5f5f7;
       }
 
       .control-panel.hidden {
-        transform: translateX(100%);
+        opacity: 0;
+        filter: blur(10px);
+        pointer-events: none;
       }
 
-      .control-panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 20px;
-        border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
-        background: rgba(0, 0, 0, 0.02);
-        flex-shrink: 0;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .control-panel-header {
-          border-bottom-color: rgba(255, 255, 255, 0.1);
-          background: rgba(255, 255, 255, 0.02);
-        }
-      }
-
-      .control-panel-header h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
+      .control-panel.hidden .toggle-btn {
+        opacity: 1;
+        filter: blur(0px);
+        pointer-events: all;
       }
 
       .toggle-btn {
-        background: none;
-        border: none;
+        position: absolute;
+        top: 20px;
+        left: -40px;
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px 0 0 8px;
         color: #007aff;
         cursor: pointer;
-        font-size: 18px;
-        padding: 4px 8px;
-        transition: opacity 0.2s;
-        border-radius: 6px;
+        font-size: 16px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      body.dark-theme .toggle-btn {
+        background: rgba(29, 29, 31, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.3);
       }
 
       .toggle-btn:hover {
-        background: rgba(0, 122, 255, 0.1);
+        background: rgba(255, 255, 255, 1);
+        transform: translateX(-2px);
+      }
+
+      body.dark-theme .toggle-btn:hover {
+        background: rgba(29, 29, 31, 1);
       }
 
       .control-panel-content {
@@ -261,7 +260,7 @@ export class ControlPanel {
       }
 
       .control-section {
-        margin-bottom: 24px;
+        margin-bottom: 32px;
       }
 
       .control-section:last-child {
@@ -269,7 +268,7 @@ export class ControlPanel {
       }
 
       .control-section h4 {
-        margin: 0 0 12px 0;
+        margin: 0 0 16px 0;
         font-size: 11px;
         font-weight: 600;
         color: #86868b;
@@ -279,26 +278,29 @@ export class ControlPanel {
 
       .control-item {
         margin-bottom: 12px;
-        background: rgba(0, 0, 0, 0.04);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
         padding: 12px 16px;
-        transition: background 0.2s ease;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       }
 
-      @media (prefers-color-scheme: dark) {
-        .control-item {
-          background: rgba(255, 255, 255, 0.06);
-        }
+      body.dark-theme .control-item {
+        background: rgba(29, 29, 31, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
       .control-item:hover {
-        background: rgba(0, 0, 0, 0.06);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
 
-      @media (prefers-color-scheme: dark) {
-        .control-item:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
+      body.dark-theme .control-item:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
 
       .control-info {
@@ -332,10 +334,8 @@ export class ControlPanel {
         font-family: 'SF Mono', Monaco, 'Courier New', monospace;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .midi-chip {
-          background: rgba(0, 122, 255, 0.2);
-        }
+      body.dark-theme .midi-chip {
+        background: rgba(0, 122, 255, 0.2);
       }
 
       .control-label {
@@ -343,10 +343,8 @@ export class ControlPanel {
         font-weight: 500;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .control-label {
-          color: #f5f5f7;
-        }
+      body.dark-theme .control-label {
+        color: #f5f5f7;
       }
 
       .control-value-wrapper {
@@ -361,10 +359,8 @@ export class ControlPanel {
         overflow: hidden;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .control-value {
-          background: rgba(255, 255, 255, 0.1);
-        }
+      body.dark-theme .control-value {
+        background: rgba(255, 255, 255, 0.1);
       }
 
       .value-bar {
@@ -403,14 +399,12 @@ export class ControlPanel {
         background: rgba(0, 0, 0, 0.3);
       }
 
-      @media (prefers-color-scheme: dark) {
-        .control-panel-content::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .control-panel-content::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
-        }
+      body.dark-theme .control-panel-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      
+      body.dark-theme .control-panel-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
       }
     `;
     document.head.appendChild(style);

@@ -13,10 +13,14 @@ class App {
     this.controlPanel = new ControlPanel()
     this.audioActive = false
     this.lastFrameTime = 0
+    this.fullscreenMode = false
   }
 
   async init() {
     console.log('Initializing APC40 Visual Controller...')
+    
+    // Initialize theme
+    this.initTheme()
     
     // Get container
     const container = document.getElementById('canvas-container')
@@ -56,6 +60,133 @@ class App {
     this.animate()
     
     console.log('Initialization complete')
+  }
+
+  initTheme() {
+    // Get saved theme or default to system
+    const savedTheme = localStorage.getItem('theme') || 'system'
+    
+    // Apply the saved theme
+    this.applyTheme(savedTheme)
+    this.updateThemeIcon(savedTheme)
+    
+    // Setup dropdown toggle
+    const themeToggle = document.getElementById('theme-toggle')
+    const themeDropdown = document.getElementById('theme-dropdown')
+    
+    if (themeToggle && themeDropdown) {
+      // Toggle dropdown on click
+      themeToggle.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const isOpen = themeDropdown.classList.contains('show')
+        if (isOpen) {
+          this.closeThemeDropdown()
+        } else {
+          this.openThemeDropdown()
+        }
+      })
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', () => {
+        this.closeThemeDropdown()
+      })
+      
+      // Prevent dropdown from closing when clicking inside
+      themeDropdown.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
+    }
+    
+    // Listen for theme option clicks
+    const themeOptions = document.querySelectorAll('.theme-option')
+    themeOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        const theme = option.dataset.theme
+        localStorage.setItem('theme', theme)
+        this.applyTheme(theme)
+        this.updateThemeIcon(theme)
+        this.updateThemeOptions(theme)
+        this.closeThemeDropdown()
+      })
+    })
+    
+    // Update active option
+    this.updateThemeOptions(savedTheme)
+    
+    // Listen for system theme changes
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const currentTheme = localStorage.getItem('theme') || 'system'
+        if (currentTheme === 'system') {
+          this.applyTheme('system')
+        }
+      })
+    }
+  }
+
+  openThemeDropdown() {
+    const themeToggle = document.getElementById('theme-toggle')
+    const themeDropdown = document.getElementById('theme-dropdown')
+    if (themeToggle && themeDropdown) {
+      themeToggle.classList.add('active')
+      themeDropdown.style.display = 'block'
+      // Force reflow
+      themeDropdown.offsetHeight
+      themeDropdown.classList.add('show')
+    }
+  }
+
+  closeThemeDropdown() {
+    const themeToggle = document.getElementById('theme-toggle')
+    const themeDropdown = document.getElementById('theme-dropdown')
+    if (themeToggle && themeDropdown) {
+      themeToggle.classList.remove('active')
+      themeDropdown.classList.remove('show')
+      setTimeout(() => {
+        if (!themeDropdown.classList.contains('show')) {
+          themeDropdown.style.display = 'none'
+        }
+      }, 200)
+    }
+  }
+
+  updateThemeIcon(theme) {
+    // Hide all icons
+    document.getElementById('theme-icon-system').style.display = 'none'
+    document.getElementById('theme-icon-light').style.display = 'none'
+    document.getElementById('theme-icon-dark').style.display = 'none'
+    
+    // Show active icon
+    document.getElementById(`theme-icon-${theme}`).style.display = 'block'
+  }
+
+  updateThemeOptions(activeTheme) {
+    const themeOptions = document.querySelectorAll('.theme-option')
+    themeOptions.forEach(option => {
+      if (option.dataset.theme === activeTheme) {
+        option.classList.add('active')
+      } else {
+        option.classList.remove('active')
+      }
+    })
+  }
+
+  applyTheme(theme) {
+    const body = document.body
+    
+    if (theme === 'dark') {
+      body.classList.add('dark-theme')
+    } else if (theme === 'light') {
+      body.classList.remove('dark-theme')
+    } else if (theme === 'system') {
+      // Check system preference
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (prefersDark) {
+        body.classList.add('dark-theme')
+      } else {
+        body.classList.remove('dark-theme')
+      }
+    }
   }
 
   setupMidiListeners() {
@@ -196,6 +327,11 @@ class App {
       })
     })
 
+    // Listen for fullscreen toggle from control panel
+    window.addEventListener('toggleFullscreen', () => {
+      this.toggleFullscreenMode()
+    })
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       switch(e.key) {
@@ -216,11 +352,48 @@ class App {
           break
         case 'h':
         case 'H':
-          // Toggle control panel visibility
-          this.controlPanel.toggle()
+          // Toggle full screen mode
+          this.toggleFullscreenMode()
           break
       }
     })
+  }
+
+  toggleFullscreenMode() {
+    this.fullscreenMode = !this.fullscreenMode
+    
+    // Toggle all UI elements
+    const sceneSelector = document.getElementById('scene-selector')
+    const status = document.querySelector('.status')
+    const helpOverlay = document.querySelector('.help-overlay')
+    
+    if (this.fullscreenMode) {
+      // Hide all UI elements
+      sceneSelector.classList.add('hidden-ui')
+      status.classList.add('hidden-ui')
+      helpOverlay.classList.add('hidden-ui')
+      this.controlPanel.container.classList.add('hidden')
+      
+      // Update canvas container to full screen
+      const canvasContainer = document.getElementById('canvas-container')
+      canvasContainer.classList.add('fullscreen')
+    } else {
+      // Show all UI elements
+      sceneSelector.classList.remove('hidden-ui')
+      status.classList.remove('hidden-ui')
+      helpOverlay.classList.remove('hidden-ui')
+      this.controlPanel.container.classList.remove('hidden')
+      
+      // Reset canvas container
+      const canvasContainer = document.getElementById('canvas-container')
+      canvasContainer.classList.remove('fullscreen')
+    }
+    
+    // Update control panel toggle button
+    const toggleBtn = this.controlPanel.container.querySelector('.toggle-btn')
+    if (toggleBtn) {
+      toggleBtn.textContent = this.fullscreenMode ? '▶' : '◀'
+    }
   }
 
   animate() {

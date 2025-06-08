@@ -24,13 +24,13 @@ export class Scene {
       alpha: true 
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(container.clientWidth, container.clientHeight);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(this.renderer.domElement);
     
     // Setup camera
     this.camera = new THREE.PerspectiveCamera(
       75,
-      container.clientWidth / container.clientHeight,
+      window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
@@ -106,8 +106,8 @@ export class Scene {
   handleResize() {
     if (!this.container) return;
     
-    const width = this.container.clientWidth;
-    const height = this.container.clientHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();

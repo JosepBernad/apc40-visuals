@@ -138,7 +138,7 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
   height: 52px;
 }
 
-.status span {
+.status > span {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -146,7 +146,7 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
   transition: color 0.2s ease;
 }
 
-.status span::before {
+.status > span::before {
   content: '';
   width: 6px;
   height: 6px;
@@ -336,11 +336,13 @@ body.dark-theme .theme-toggle:hover {
 .theme-toggle.active {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #34c759;
 }
 
 body.dark-theme .theme-toggle.active {
   background: rgba(29, 29, 31, 0.9);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #34c759;
 }
 
 .theme-icon {
@@ -384,7 +386,7 @@ body.dark-theme .theme-dropdown {
   background: transparent;
   border: none;
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 8px 12px 8px 24px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -394,6 +396,7 @@ body.dark-theme .theme-dropdown {
   font-size: 13px;
   font-weight: 500;
   text-align: left;
+  position: relative;
 }
 
 body.dark-theme .theme-option {
@@ -409,12 +412,32 @@ body.dark-theme .theme-option:hover {
 }
 
 .theme-option.active {
-  background: #007aff;
-  color: white;
+  background: transparent;
+  color: #34c759;
+}
+
+.theme-option.active::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 4px #34c759;
 }
 
 .theme-option.active:hover {
-  background: #0051d5;
+  background: rgba(52, 199, 89, 0.1);
+  color: #34c759;
+}
+
+body.dark-theme .theme-option.active:hover {
+  background: rgba(52, 199, 89, 0.2);
+}
+
+.theme-option.active svg {
+  color: #34c759;
 }
 
 .theme-option svg {
@@ -426,4 +449,14 @@ body.dark-theme .theme-option:hover {
 /* Remove old styles */
 .theme-btn {
   display: none;
+}
+
+.theme-toggle[data-current-theme="light"],
+.theme-toggle[data-current-theme="dark"] {
+  color: #34c759;
+}
+
+.theme-toggle[data-current-theme="light"]:hover,
+.theme-toggle[data-current-theme="dark"]:hover {
+  color: #34c759;
 }

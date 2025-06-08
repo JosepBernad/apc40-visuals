@@ -158,6 +158,12 @@ class App {
     
     // Show active icon
     document.getElementById(`theme-icon-${theme}`).style.display = 'block'
+    
+    // Update theme toggle data attribute
+    const themeToggle = document.getElementById('theme-toggle')
+    if (themeToggle) {
+      themeToggle.setAttribute('data-current-theme', theme)
+    }
   }
 
   updateThemeOptions(activeTheme) {

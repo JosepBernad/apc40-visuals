@@ -85,7 +85,7 @@ export class ControlPanel {
     // Check for custom mapping first
     const customNumber = this.getCustomMidiNumber(controlName, type);
     if (customNumber !== undefined) {
-      return `#${customNumber}`;
+      return type === 'button' ? `Note ${customNumber}` : `CC ${customNumber}`;
     }
 
     // Fall back to default MIDI mappings
@@ -121,9 +121,9 @@ export class ControlPanel {
     };
 
     if (type === 'knob' && midiMappings.knobs[controlName]) {
-      return `#${midiMappings.knobs[controlName]}`;
+      return `CC ${midiMappings.knobs[controlName]}`;
     } else if (type === 'fader' && midiMappings.faders[controlName]) {
-      return `#${midiMappings.faders[controlName]}`;
+      return `CC ${midiMappings.faders[controlName]}`;
     } else if (type === 'button' && controlName.includes('[')) {
       // Parse button format like "row2[0]"
       const match = controlName.match(/row(\d)\[(\d)\]/);
@@ -131,7 +131,7 @@ export class ControlPanel {
         const row = `row${match[1]}`;
         const index = parseInt(match[2]);
         if (midiMappings.buttons[row] && midiMappings.buttons[row][index]) {
-          return `#${midiMappings.buttons[row][index]}`;
+          return `Note ${midiMappings.buttons[row][index]}`;
         }
       }
     }
@@ -152,7 +152,12 @@ export class ControlPanel {
       item.className += isOn ? ' button-on' : ' button-off';
       
       // Add click handler for buttons
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        // Don't trigger if clicking on MIDI chip
+        if (e.target.classList.contains('midi-chip') || e.target.classList.contains('editable')) {
+          return;
+        }
+        
         const newValue = control.value > 0.5 ? 0 : 1;
         // Dispatch event to update the parameter
         window.dispatchEvent(new CustomEvent('controlPanelUpdate', {
@@ -1014,6 +1019,54 @@ export class ControlPanel {
         box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
       }
 
+      /* Button-specific styles */
+      .control-item-button {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .control-item-button.button-on {
+        background: rgba(52, 199, 89, 0.9);
+        border-color: rgba(52, 199, 89, 0.3);
+      }
+
+      body.dark-theme .control-item-button.button-on {
+        background: rgba(52, 199, 89, 0.8);
+        border-color: rgba(52, 199, 89, 0.5);
+      }
+
+      .control-item-button.button-on:hover {
+        background: rgba(52, 199, 89, 1);
+        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+      }
+
+      body.dark-theme .control-item-button.button-on:hover {
+        background: rgba(52, 199, 89, 0.9);
+        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+      }
+
+      .control-item-button.button-on .control-name,
+      .control-item-button.button-on .control-label {
+        color: white;
+      }
+
+      .control-item-button.button-on .midi-chip {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .control-item-button.button-on .control-value {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .control-item-button.button-on .value-bar {
+        background: white;
+      }
+
+      /* Hide value bar for buttons */
+      .control-item-button .control-value {
+        display: none;
+      }
 
     `;
     document.head.appendChild(style);
@@ -1222,7 +1275,10 @@ export class ControlPanel {
     // Remove any existing dropdown
     this.closeMidiEditDropdown();
     
-    const currentNumber = chipElement.textContent.replace('#', '');
+    // Extract number from CC/Note format
+    const currentText = chipElement.textContent;
+    const currentNumber = currentText.replace(/^(CC|Note)\s+/, '');
+    const midiType = type === 'button' ? 'Note' : 'CC';
     
     // Create dropdown
     const dropdown = document.createElement('div');
@@ -1282,7 +1338,7 @@ export class ControlPanel {
       const newValue = parseInt(input.value);
       if (newValue >= 0 && newValue <= 127) {
         this.updateMidiMapping(controlName, type, newValue);
-        chipElement.textContent = `#${newValue}`;
+        chipElement.textContent = `${midiType} ${newValue}`;
         this.closeMidiEditDropdown();
       } else {
         input.style.borderColor = '#ff3b30';
@@ -1296,7 +1352,7 @@ export class ControlPanel {
       if (newValue >= 0 && newValue <= 127) {
         input.style.borderColor = '';
         this.updateMidiMapping(controlName, type, newValue);
-        chipElement.textContent = `#${newValue}`;
+        chipElement.textContent = `${midiType} ${newValue}`;
       } else {
         input.style.borderColor = '#ff3b30';
       }

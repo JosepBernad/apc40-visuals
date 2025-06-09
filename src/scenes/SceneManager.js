@@ -1,6 +1,8 @@
 import { GeometricScene } from './GeometricScene.js';
 import { ParticleScene } from './ParticleScene.js';
 import { WaveScene } from './WaveScene.js';
+import { TunnelScene } from './TunnelScene.js';
+import { CrystalScene } from './CrystalScene.js';
 
 export class SceneManager {
   constructor(container) {
@@ -16,11 +18,13 @@ export class SceneManager {
   }
 
   initScenes() {
-    // Create all scenes
+    // Create all scenes - reordered with WaveScene first and GeometricScene last
     this.scenes = [
-      new GeometricScene(),
-      new ParticleScene(),
-      new WaveScene()
+      new WaveScene(),      // Was last, now first
+      new TunnelScene(),    // New scene
+      new CrystalScene(),   // New scene
+      new ParticleScene(),  // Stays in middle
+      new GeometricScene()  // Was first, now last
     ];
   }
 

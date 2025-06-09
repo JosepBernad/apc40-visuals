@@ -497,6 +497,8 @@ class App {
         case '1':
         case '2':
         case '3':
+        case '4':
+        case '5':
           const sceneIndex = parseInt(e.key) - 1
           this.sceneManager.switchToScene(sceneIndex, false, () => {
             this.updateControlPanel()
@@ -671,15 +673,37 @@ class App {
     
     // Define default values for each scene type
     const defaultValues = {
-      'Geometric': {
+      'Waves': {
+        frequency: 0.5,
+        amplitude: 0.5,
+        speed: 0.5,
+        waveCount: 0.5,
+        distortion: 0.5,
+        wireframe: 0,
+        hue: 0,
+        intensity: 1
+      },
+      'Tunnel': {
         speed: 0.5,
         complexity: 0.5,
-        scale: 0.5,
-        rotation: 0.5,
+        radius: 0.5,
+        segments: 0.5,
         glow: 0.5,
         wireframe: 0,
-        metalness: 0.8,
-        roughness: 0.2,
+        turbulence: 0.3,
+        particles: 0.7,
+        hue: 0,
+        intensity: 1
+      },
+      'Crystal': {
+        growth: 0.5,
+        complexity: 0.5,
+        refraction: 0.7,
+        prismatic: 0.6,
+        resonance: 0.4,
+        wireframe: 0,
+        transparency: 0.8,
+        facets: 0.5,
         hue: 0,
         intensity: 1
       },
@@ -693,13 +717,15 @@ class App {
         hue: 0,
         intensity: 1
       },
-      'Waves': {
-        frequency: 0.5,
-        amplitude: 0.5,
+      'Geometric': {
         speed: 0.5,
-        waveCount: 0.5,
-        distortion: 0.5,
+        complexity: 0.5,
+        scale: 0.5,
+        rotation: 0.5,
+        glow: 0.5,
         wireframe: 0,
+        metalness: 0.8,
+        roughness: 0.2,
         hue: 0,
         intensity: 1
       }

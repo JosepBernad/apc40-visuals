@@ -271,12 +271,13 @@ export class ControlPanel {
   updateControlVisual(controlName, value) {
     if (!this.container) return;
     
-    // Find the control item in the DOM
+    // Find the control item in the DOM by looking for elements with data-control attribute
     const controlItems = this.container.querySelectorAll('.control-item');
     
     for (const item of controlItems) {
-      const nameElement = item.querySelector('.control-name');
-      if (nameElement && nameElement.textContent === controlName) {
+      // Look for any element with data-control attribute matching the controlName
+      const controlElement = item.querySelector(`[data-control="${controlName}"]`);
+      if (controlElement) {
         // Update the value bar
         const valueBar = item.querySelector('.value-bar');
         if (valueBar) {

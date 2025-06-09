@@ -683,6 +683,16 @@ class App {
         hue: 0,
         intensity: 1
       },
+      'Particles': {
+        count: 0.5,
+        speed: 0.5,
+        spread: 0.5,
+        size: 0.5,
+        turbulence: 0.5,
+        trail: 0,
+        hue: 0,
+        intensity: 1
+      },
       'Tunnel': {
         speed: 0.5,
         complexity: 0.5,
@@ -704,16 +714,6 @@ class App {
         wireframe: 0,
         transparency: 0.8,
         facets: 0.5,
-        hue: 0,
-        intensity: 1
-      },
-      'Particles': {
-        count: 0.5,
-        speed: 0.5,
-        spread: 0.5,
-        size: 0.5,
-        turbulence: 0.5,
-        trail: 0,
         hue: 0,
         intensity: 1
       },

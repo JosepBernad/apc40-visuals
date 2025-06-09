@@ -686,10 +686,14 @@ body.dark-theme .scene-guide-copy.copied {
   font-size: 24px;
   color: #86868b;
   cursor: pointer;
-  padding: 4px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
   transition: all 0.2s ease;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .scene-guide-close:hover {

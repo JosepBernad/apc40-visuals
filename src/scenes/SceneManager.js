@@ -18,13 +18,13 @@ export class SceneManager {
   }
 
   initScenes() {
-    // Create all scenes - reordered with WaveScene first and GeometricScene last
+    // Create all scenes - reordered with WaveScene first, ParticleScene second, GeometricScene last
     this.scenes = [
-      new WaveScene(),      // Was last, now first
-      new TunnelScene(),    // New scene
-      new CrystalScene(),   // New scene
-      new ParticleScene(),  // Stays in middle
-      new GeometricScene()  // Was first, now last
+      new WaveScene(),      // First
+      new ParticleScene(),  // Second
+      new TunnelScene(),    // Third - new scene
+      new CrystalScene(),   // Fourth - new scene
+      new GeometricScene()  // Last
     ];
   }
 

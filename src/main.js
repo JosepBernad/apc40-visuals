@@ -446,6 +446,11 @@ class App {
       this.toggleFullscreenMode()
     })
 
+    // Listen for fullscreen changes (when user exits with Escape key, etc.)
+    document.addEventListener('fullscreenchange', () => {
+      this.fullscreenMode = !!document.fullscreenElement
+    })
+
     // Listen for control panel button clicks
     window.addEventListener('controlPanelUpdate', (e) => {
       const { controlName, value } = e.detail
@@ -499,7 +504,12 @@ class App {
           break
         case 'h':
         case 'H':
-          // Toggle full screen mode
+          // Toggle UI visibility (old behavior)
+          this.toggleUIVisibility()
+          break
+        case 'f':
+        case 'F':
+          // Toggle browser fullscreen
           this.toggleFullscreenMode()
           break
         case 'm':
@@ -563,7 +573,25 @@ class App {
     }
   }
 
-  toggleFullscreenMode() {
+  async toggleFullscreenMode() {
+    try {
+      if (!document.fullscreenElement) {
+        // Enter fullscreen mode
+        await document.documentElement.requestFullscreen()
+        this.fullscreenMode = true
+      } else {
+        // Exit fullscreen mode
+        await document.exitFullscreen()
+        this.fullscreenMode = false
+      }
+    } catch (error) {
+      console.warn('Fullscreen not supported or failed:', error)
+      // Fallback to the old UI-hiding behavior if fullscreen API fails
+      this.toggleUIVisibility()
+    }
+  }
+
+  toggleUIVisibility() {
     this.fullscreenMode = !this.fullscreenMode
     
     // Toggle all UI elements

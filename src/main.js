@@ -52,6 +52,9 @@ class App {
     // Setup UI listeners
     this.setupUIListeners()
     
+    // Setup opacity slider
+    this.setupOpacitySlider()
+    
     // Start scene manager
     this.sceneManager.start()
     
@@ -496,6 +499,58 @@ class App {
           break
       }
     })
+  }
+
+  setupOpacitySlider() {
+    const opacitySlider = document.getElementById('help-opacity-slider')
+    const opacityValue = document.getElementById('opacity-value')
+    
+    if (opacitySlider && opacityValue) {
+      // Load saved opacity or default to 100%
+      const savedOpacity = localStorage.getItem('ui-opacity') || '100'
+      opacitySlider.value = savedOpacity
+      opacityValue.textContent = `${savedOpacity}%`
+      this.setUIOpacity(savedOpacity / 100)
+      
+      // Handle slider changes
+      opacitySlider.addEventListener('input', (e) => {
+        const opacity = e.target.value
+        opacityValue.textContent = `${opacity}%`
+        this.setUIOpacity(opacity / 100)
+        localStorage.setItem('ui-opacity', opacity)
+      })
+    }
+  }
+
+  setUIOpacity(opacity) {
+    // Get all UI elements except the canvas/scene
+    const uiElements = [
+      document.querySelector('.help-overlay'),
+      document.getElementById('scene-selector'),
+      document.querySelector('.status'),
+      document.querySelector('.control-panel')
+    ]
+    
+    // Apply opacity to all UI elements
+    uiElements.forEach(element => {
+      if (element) {
+        element.style.opacity = opacity
+      }
+    })
+    
+    // Also apply to any scene guide overlay if it exists
+    const sceneGuideOverlay = document.getElementById('scene-guide-overlay')
+    if (sceneGuideOverlay) {
+      sceneGuideOverlay.style.opacity = opacity
+    }
+    
+    // Keep opacity control elements more visible
+    // Calculate enhanced opacity for the control (minimum 70%, maximum 100%)
+    const controlOpacity = Math.max(0.7, opacity)
+    const opacityControl = document.querySelector('.opacity-control')
+    if (opacityControl) {
+      opacityControl.style.opacity = controlOpacity
+    }
   }
 
   toggleFullscreenMode() {

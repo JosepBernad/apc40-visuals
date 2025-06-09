@@ -2,6 +2,8 @@
 
 A professional real-time visual controller built with Three.js, designed for live performance with APC40 MIDI controllers. Features multiple stunning visual scenes with real-time parameter control, LFO automation, and audio reactivity.
 
+![APC40 Visual Controller Screenshot](./public/image.png)
+
 ![APC40 Visual Controller](https://img.shields.io/badge/Status-Active-brightgreen) ![Three.js](https://img.shields.io/badge/Three.js-r158-blue) ![Vite](https://img.shields.io/badge/Vite-6.3.5-purple) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## ✨ Features

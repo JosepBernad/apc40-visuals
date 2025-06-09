@@ -82,7 +82,13 @@ export class ControlPanel {
   }
 
   getMidiNumber(controlName, type) {
-    // Import the MIDI mappings to get the actual MIDI numbers
+    // Check for custom mapping first
+    const customNumber = this.getCustomMidiNumber(controlName, type);
+    if (customNumber !== undefined) {
+      return `#${customNumber}`;
+    }
+
+    // Fall back to default MIDI mappings
     const midiMappings = {
       knobs: {
         deviceKnob1: 16,
@@ -169,7 +175,7 @@ export class ControlPanel {
           </button>` : ''}
         </div>
         <div class="control-name-group">
-          ${midiNumber ? `<span class="midi-chip">${midiNumber}</span>` : ''}
+          ${midiNumber ? `<span class="midi-chip editable" data-control="${control.name}" data-type="${type}" title="Click to edit MIDI number">${midiNumber}</span>` : ''}
         </div>
       </div>
       <div class="control-value-wrapper">
@@ -223,6 +229,15 @@ export class ControlPanel {
 
       lfoButton.addEventListener('mouseleave', () => {
         this.hideLFOTooltip();
+      });
+    }
+
+    // Add MIDI chip editing functionality
+    const midiChip = item.querySelector('.midi-chip.editable');
+    if (midiChip) {
+      midiChip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.editMidiNumber(midiChip, control.name, type);
       });
     }
     
@@ -473,8 +488,24 @@ export class ControlPanel {
         font-family: 'SF Mono', Monaco, 'Courier New', monospace;
       }
 
+      .midi-chip.editable {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+      }
+
+      .midi-chip.editable:hover {
+        background: rgba(0, 122, 255, 0.2);
+        border-color: #007aff;
+        transform: scale(1.05);
+      }
+
       body.dark-theme .midi-chip {
         background: rgba(0, 122, 255, 0.2);
+      }
+
+      body.dark-theme .midi-chip.editable:hover {
+        background: rgba(0, 122, 255, 0.3);
       }
 
       .control-label {
@@ -868,6 +899,122 @@ export class ControlPanel {
       .lfo-tooltip-global.show {
         opacity: 1;
       }
+
+      /* MIDI Edit Dropdown Styles */
+      .midi-edit-dropdown {
+        background: rgba(255, 255, 255, 1);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 4px;
+        min-width: 200px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        z-index: 1001;
+        font-size: 12px;
+        overflow: hidden;
+      }
+
+      body.dark-theme .midi-edit-dropdown {
+        background: rgba(29, 29, 31, 1);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+      }
+
+      .midi-edit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+        color: #1d1d1f;
+      }
+
+      body.dark-theme .midi-edit-header {
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+        color: #f5f5f7;
+      }
+
+      .midi-edit-close {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: #666;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .midi-edit-close:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #333;
+      }
+
+      body.dark-theme .midi-edit-close {
+        color: #999;
+      }
+
+      body.dark-theme .midi-edit-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ccc;
+      }
+
+      .midi-edit-content {
+        padding: 16px;
+      }
+
+      .midi-edit-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .midi-edit-row label {
+        min-width: 50px;
+        font-weight: 500;
+        color: #1d1d1f;
+      }
+
+      body.dark-theme .midi-edit-row label {
+        color: #f5f5f7;
+      }
+
+      .midi-number-input {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.8);
+        color: #1d1d1f;
+        font-size: 12px;
+        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        font-weight: 600;
+        text-align: center;
+        outline: none;
+        width: 60px;
+      }
+
+      body.dark-theme .midi-number-input {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #f5f5f7;
+      }
+
+      .midi-number-input:focus {
+        border-color: #007aff;
+        box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+      }
+
+
     `;
     document.head.appendChild(style);
   }
@@ -1069,5 +1216,148 @@ export class ControlPanel {
       this.currentLFODropdown = null;
       document.removeEventListener('click', this.closeLFOConfigDropdown.bind(this));
     }
+  }
+
+  editMidiNumber(chipElement, controlName, type) {
+    // Remove any existing dropdown
+    this.closeMidiEditDropdown();
+    
+    const currentNumber = chipElement.textContent.replace('#', '');
+    
+    // Create dropdown
+    const dropdown = document.createElement('div');
+    dropdown.className = 'midi-edit-dropdown';
+    dropdown.innerHTML = `
+      <div class="midi-edit-header">
+        <span>MIDI Number</span>
+        <button class="midi-edit-close">×</button>
+      </div>
+      <div class="midi-edit-content">
+        <div class="midi-edit-row">
+          <input type="number" class="midi-number-input" min="0" max="127" value="${currentNumber}">
+        </div>
+      </div>
+    `;
+    
+    // Position dropdown relative to chip
+    const chipRect = chipElement.getBoundingClientRect();
+    dropdown.style.position = 'fixed';
+    dropdown.style.top = `${chipRect.bottom + 5}px`;
+    dropdown.style.zIndex = '10000';
+    
+    // Add to DOM first to get dimensions
+    document.body.appendChild(dropdown);
+    
+    // Get dropdown dimensions
+    const dropdownRect = dropdown.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    
+    // Calculate optimal horizontal position
+    let leftPosition = chipRect.left;
+    
+    // Check if dropdown would overflow on the right
+    if (leftPosition + dropdownRect.width > viewportWidth - 10) {
+      // Position dropdown to the left of the chip instead
+      leftPosition = chipRect.right - dropdownRect.width;
+      
+      // If it still overflows on the left, clamp to viewport
+      if (leftPosition < 10) {
+        leftPosition = 10;
+      }
+    }
+    
+    dropdown.style.left = `${leftPosition}px`;
+    
+    this.currentMidiDropdown = dropdown;
+    
+    // Focus input and select text
+    const input = dropdown.querySelector('.midi-number-input');
+    setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 100);
+    
+    // Event handlers
+    const saveValue = () => {
+      const newValue = parseInt(input.value);
+      if (newValue >= 0 && newValue <= 127) {
+        this.updateMidiMapping(controlName, type, newValue);
+        chipElement.textContent = `#${newValue}`;
+        this.closeMidiEditDropdown();
+      } else {
+        input.style.borderColor = '#ff3b30';
+        input.focus();
+      }
+    };
+    
+    // Auto-save on input change
+    input.addEventListener('input', () => {
+      const newValue = parseInt(input.value);
+      if (newValue >= 0 && newValue <= 127) {
+        input.style.borderColor = '';
+        this.updateMidiMapping(controlName, type, newValue);
+        chipElement.textContent = `#${newValue}`;
+      } else {
+        input.style.borderColor = '#ff3b30';
+      }
+    });
+    
+    // Close button
+    dropdown.querySelector('.midi-edit-close').addEventListener('click', () => {
+      this.closeMidiEditDropdown();
+    });
+    
+    // Keyboard events
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveValue();
+      } else if (e.key === 'Escape') {
+        this.closeMidiEditDropdown();
+      }
+    });
+    
+    // Prevent dropdown from closing when clicking inside
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    // Close dropdown when clicking outside
+    setTimeout(() => {
+      document.addEventListener('click', this.closeMidiEditDropdown.bind(this));
+    }, 0);
+  }
+
+  closeMidiEditDropdown() {
+    if (this.currentMidiDropdown) {
+      this.currentMidiDropdown.remove();
+      this.currentMidiDropdown = null;
+      document.removeEventListener('click', this.closeMidiEditDropdown.bind(this));
+    }
+  }
+
+  updateMidiMapping(controlName, type, midiNumber) {
+    // Get current custom mappings or create new object
+    const customMappings = JSON.parse(localStorage.getItem('customMidiMappings') || '{}');
+    
+    if (!customMappings[type]) {
+      customMappings[type] = {};
+    }
+    
+    customMappings[type][controlName] = midiNumber;
+    
+    // Save to localStorage
+    localStorage.setItem('customMidiMappings', JSON.stringify(customMappings));
+    
+    // Notify the main app about the mapping change
+    window.dispatchEvent(new CustomEvent('midiMappingUpdate', {
+      detail: { controlName, type, midiNumber }
+    }));
+    
+    console.log(`Updated MIDI mapping: ${controlName} (${type}) -> #${midiNumber}`);
+  }
+
+  getCustomMidiNumber(controlName, type) {
+    const customMappings = JSON.parse(localStorage.getItem('customMidiMappings') || '{}');
+    return customMappings[type] && customMappings[type][controlName];
   }
 } 

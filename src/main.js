@@ -466,6 +466,16 @@ class App {
       console.log(`LFO config updated for ${controlName}:`, config)
     })
 
+    // Listen for MIDI mapping updates
+    window.addEventListener('midiMappingUpdate', (e) => {
+      const { controlName, type, midiNumber } = e.detail
+      // Update the MIDI controller with new mapping
+      if (this.midiController) {
+        this.midiController.updateCustomMapping(controlName, type, midiNumber)
+      }
+      console.log(`MIDI mapping updated: ${controlName} (${type}) -> #${midiNumber}`)
+    })
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       switch(e.key) {

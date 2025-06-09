@@ -169,7 +169,6 @@ export class ControlPanel {
           </button>` : ''}
         </div>
         <div class="control-name-group">
-          <span class="control-name">${control.name}</span>
           ${midiNumber ? `<span class="midi-chip">${midiNumber}</span>` : ''}
         </div>
       </div>

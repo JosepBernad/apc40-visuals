@@ -604,7 +604,7 @@ class App {
       sceneSelector.classList.add('hidden-ui')
       status.classList.add('hidden-ui')
       helpOverlay.classList.add('hidden-ui')
-      this.controlPanel.container.classList.add('hidden')
+      this.controlPanel.container.classList.add('hidden-ui')
       
       // Update canvas container to full screen
       const canvasContainer = document.getElementById('canvas-container')
@@ -614,7 +614,7 @@ class App {
       sceneSelector.classList.remove('hidden-ui')
       status.classList.remove('hidden-ui')
       helpOverlay.classList.remove('hidden-ui')
-      this.controlPanel.container.classList.remove('hidden')
+      this.controlPanel.container.classList.remove('hidden-ui')
       
       // Reset canvas container
       const canvasContainer = document.getElementById('canvas-container')

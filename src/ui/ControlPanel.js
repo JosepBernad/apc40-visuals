@@ -340,13 +340,7 @@ export class ControlPanel {
         color: #f5f5f7;
       }
 
-      .control-panel.hidden {
-        opacity: 0;
-        filter: blur(10px);
-        pointer-events: none;
-      }
-
-      .control-panel.hidden .toggle-btn {
+      .control-panel.hidden-ui .toggle-btn {
         opacity: 1;
         filter: blur(0px);
         pointer-events: all;

@@ -532,48 +532,28 @@ export class ControlPanel {
       }
 
       .control-item-button.button-on {
-        background: rgba(255, 180, 60, 0.08) !important;
         border: 1.5px solid #ffb84d !important;
         box-shadow: 0 0 12px rgba(255, 180, 60, 0.3), 0 2px 8px rgba(255, 180, 60, 0.15) !important;
         transform: scale(1.05) !important;
       }
 
       body.dark-theme .control-item-button.button-on {
-        background: rgba(255, 180, 60, 0.12) !important;
         border: 1.5px solid #ffb84d !important;
         box-shadow: 0 0 12px rgba(255, 180, 60, 0.3), 0 2px 8px rgba(255, 180, 60, 0.15) !important;
       }
 
       .control-item-button.button-on:hover {
-        background: rgba(255, 180, 60, 0.15) !important;
         border-color: #ffb84d !important;
         box-shadow: 0 0 16px rgba(255, 180, 60, 0.4), 0 2px 12px rgba(255, 180, 60, 0.25) !important;
         transform: scale(1.05) !important;
       }
 
       body.dark-theme .control-item-button.button-on:hover {
-        background: rgba(255, 180, 60, 0.2) !important;
         border-color: #ffb84d !important;
         box-shadow: 0 0 16px rgba(255, 180, 60, 0.4), 0 2px 12px rgba(255, 180, 60, 0.25) !important;
       }
 
-      .control-item-button.button-on .control-name,
-      .control-item-button.button-on .control-label {
-        color: white;
-      }
 
-      .control-item-button.button-on .midi-chip {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-      }
-
-      .control-item-button.button-on .control-value {
-        background: rgba(255, 255, 255, 0.2);
-      }
-
-      .control-item-button.button-on .value-bar {
-        background: white;
-      }
 
       /* Hide value bar for buttons */
       .control-item-button .control-value {

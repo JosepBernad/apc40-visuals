@@ -532,23 +532,29 @@ export class ControlPanel {
       }
 
       .control-item-button.button-on {
-        background: rgba(52, 199, 89, 0.9);
-        border-color: rgba(52, 199, 89, 0.3);
+        background: rgba(255, 180, 60, 0.08) !important;
+        border: 1.5px solid #ffb84d !important;
+        box-shadow: 0 0 12px rgba(255, 180, 60, 0.3), 0 2px 8px rgba(255, 180, 60, 0.15) !important;
+        transform: scale(1.05) !important;
       }
 
       body.dark-theme .control-item-button.button-on {
-        background: rgba(52, 199, 89, 0.8);
-        border-color: rgba(52, 199, 89, 0.5);
+        background: rgba(255, 180, 60, 0.12) !important;
+        border: 1.5px solid #ffb84d !important;
+        box-shadow: 0 0 12px rgba(255, 180, 60, 0.3), 0 2px 8px rgba(255, 180, 60, 0.15) !important;
       }
 
       .control-item-button.button-on:hover {
-        background: rgba(52, 199, 89, 1);
-        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+        background: rgba(255, 180, 60, 0.15) !important;
+        border-color: #ffb84d !important;
+        box-shadow: 0 0 16px rgba(255, 180, 60, 0.4), 0 2px 12px rgba(255, 180, 60, 0.25) !important;
+        transform: scale(1.05) !important;
       }
 
       body.dark-theme .control-item-button.button-on:hover {
-        background: rgba(52, 199, 89, 0.9);
-        box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+        background: rgba(255, 180, 60, 0.2) !important;
+        border-color: #ffb84d !important;
+        box-shadow: 0 0 16px rgba(255, 180, 60, 0.4), 0 2px 12px rgba(255, 180, 60, 0.25) !important;
       }
 
       .control-item-button.button-on .control-name,

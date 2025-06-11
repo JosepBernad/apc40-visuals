@@ -361,16 +361,23 @@ export class TunnelScene extends Scene {
         { name: 'deviceKnob2', parameter: 'complexity', value: this.parameters.complexity, label: 'Complexity' },
         { name: 'deviceKnob3', parameter: 'radius', value: this.parameters.radius, label: 'Radius' },
         { name: 'deviceKnob4', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
-        { name: 'deviceKnob5', parameter: 'glow', value: this.parameters.glow, label: 'Glow' },
-        { name: 'deviceKnob6', parameter: 'turbulence', value: this.parameters.turbulence, label: 'Turbulence' },
-        { name: 'deviceKnob7', parameter: 'segments', value: this.parameters.segments, label: 'Segments' },
+        { name: 'deviceKnob5', parameter: 'segments', value: this.parameters.segments, label: 'Segments' },
+        { name: 'deviceKnob6', parameter: 'glow', value: this.parameters.glow, label: 'Glow' },
+        { name: 'deviceKnob7', parameter: 'turbulence', value: this.parameters.turbulence, label: 'Turbulence' },
         { name: 'deviceKnob8', parameter: 'particles', value: this.parameters.particles, label: 'Particles' }
       ],
       buttons: [
         { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ],
       faders: [
-        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+        { name: 'track1', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' },
+        { name: 'track2', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+        { name: 'track3', parameter: 'complexity', value: this.parameters.complexity, label: 'Complexity' },
+        { name: 'track4', parameter: 'radius', value: this.parameters.radius, label: 'Radius' },
+        { name: 'track5', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'track6', parameter: 'segments', value: this.parameters.segments, label: 'Segments' },
+        { name: 'track7', parameter: 'glow', value: this.parameters.glow, label: 'Glow' },
+        { name: 'track8', parameter: 'turbulence', value: this.parameters.turbulence, label: 'Turbulence' }
       ]
     };
   }

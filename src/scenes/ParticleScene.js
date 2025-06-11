@@ -237,14 +237,21 @@ export class ParticleScene extends Scene {
         { name: 'deviceKnob2', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
         { name: 'deviceKnob3', parameter: 'spread', value: this.parameters.spread, label: 'Spread' },
         { name: 'deviceKnob4', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
-        { name: 'deviceKnob5', parameter: 'size', value: this.parameters.size, label: 'Particle Size' },
+        { name: 'deviceKnob5', parameter: 'size', value: this.parameters.size, label: 'Size' },
         { name: 'deviceKnob6', parameter: 'turbulence', value: this.parameters.turbulence, label: 'Turbulence' }
       ],
       buttons: [
         { name: 'row2[0]', parameter: 'trail', value: this.parameters.trail, label: 'Trail Effect' }
       ],
       faders: [
-        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+        { name: 'track1', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' },
+        { name: 'track2', parameter: 'count', value: this.parameters.count, label: 'Particle Count' },
+        { name: 'track3', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+        { name: 'track4', parameter: 'spread', value: this.parameters.spread, label: 'Spread' },
+        { name: 'track5', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'track6', parameter: 'size', value: this.parameters.size, label: 'Size' },
+        { name: 'track7', parameter: 'turbulence', value: this.parameters.turbulence, label: 'Turbulence' },
+        { name: 'track8', parameter: 'trail', value: this.parameters.trail, label: 'Trail Effect' }
       ]
     };
   }

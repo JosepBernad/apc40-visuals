@@ -261,8 +261,8 @@ class App {
 
     // Fader controls
     this.midiController.on('fader', (data) => {
-      if (data.name === 'master') {
-        // Master fader controls overall intensity
+      if (data.name === 'track1') {
+        // Track1 fader controls overall intensity (master)
         const currentScene = this.sceneManager.getCurrentScene()
         if (currentScene) {
           currentScene.setIntensity(data.value)
@@ -288,8 +288,8 @@ class App {
     const currentScene = this.sceneManager.getCurrentScene()
     if (!currentScene) return
 
-    // Special handling for master intensity
-    if (controlName === 'master') {
+    // Special handling for master intensity (track1)
+    if (controlName === 'track1') {
       currentScene.setIntensity(value)
       currentScene.setParameter('intensity', value)
       this.controlPanel.updateControlValue(controlName, value)

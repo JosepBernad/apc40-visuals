@@ -354,7 +354,14 @@ export class CrystalScene extends Scene {
         { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ],
       faders: [
-        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+        { name: 'track1', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' },
+        { name: 'track2', parameter: 'growth', value: this.parameters.growth, label: 'Growth' },
+        { name: 'track3', parameter: 'complexity', value: this.parameters.complexity, label: 'Complexity' },
+        { name: 'track4', parameter: 'refraction', value: this.parameters.refraction, label: 'Refraction' },
+        { name: 'track5', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'track6', parameter: 'prismatic', value: this.parameters.prismatic, label: 'Prismatic' },
+        { name: 'track7', parameter: 'resonance', value: this.parameters.resonance, label: 'Resonance' },
+        { name: 'track8', parameter: 'transparency', value: this.parameters.transparency, label: 'Transparency' }
       ]
     };
   }

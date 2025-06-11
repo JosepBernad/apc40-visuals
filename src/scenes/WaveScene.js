@@ -243,7 +243,14 @@ export class WaveScene extends Scene {
         { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ],
       faders: [
-        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+        { name: 'track1', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' },
+        { name: 'track2', parameter: 'frequency', value: this.parameters.frequency, label: 'Frequency' },
+        { name: 'track3', parameter: 'amplitude', value: this.parameters.amplitude, label: 'Amplitude' },
+        { name: 'track4', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+        { name: 'track5', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'track6', parameter: 'waveCount', value: this.parameters.waveCount, label: 'Wave Layers' },
+        { name: 'track7', parameter: 'distortion', value: this.parameters.distortion, label: 'Distortion' },
+        { name: 'track8', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ]
     };
   }

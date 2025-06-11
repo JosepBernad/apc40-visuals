@@ -348,7 +348,14 @@ export class GeometricScene extends Scene {
         { name: 'row2[0]', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ],
       faders: [
-        { name: 'master', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' }
+        { name: 'track1', parameter: 'intensity', value: this.parameters.intensity, label: 'Master Intensity' },
+        { name: 'track2', parameter: 'speed', value: this.parameters.speed, label: 'Speed' },
+        { name: 'track3', parameter: 'complexity', value: this.parameters.complexity, label: 'Complexity' },
+        { name: 'track4', parameter: 'scale', value: this.parameters.scale, label: 'Scale' },
+        { name: 'track5', parameter: 'hue', value: this.parameters.hue, label: 'Color' },
+        { name: 'track6', parameter: 'rotation', value: this.parameters.rotation, label: 'Rotation' },
+        { name: 'track7', parameter: 'glow', value: this.parameters.glow, label: 'Glow' },
+        { name: 'track8', parameter: 'wireframe', value: this.parameters.wireframe, label: 'Wireframe' }
       ]
     };
   }
